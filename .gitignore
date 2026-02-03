@@ -1,0 +1,25 @@
+node_modules/
+.expo/
+.expo-shared/
+dist/
+npm-debug.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.orig.*
+web-build/
+
+# Build folders (경로 길이 문제 방지)
+**/build/
+**/.transforms/
+app/packages/**/android/build/
+app/packages/**/build/
+
+# macOS
+.DS_Store
+
+# Environment variables
+.env
+.env.local
