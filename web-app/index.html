@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>멜로디 스냅 - 음악소리로</title>
+    <script>
+        // 삼성인터넷(HTTPS에서 fixed가 깨질 수 있음) → html에 클래스 붙여 CSS에서 sticky로 대체
+        (function(){
+            var ua = navigator.userAgent || '';
+            if (/SamsungBrowser|Samsung/i.test(ua)) {
+                document.documentElement.classList.add('ua-samsung-internet');
+            }
+        })();
+    </script>
+    <meta name="description" content="음악을 찾고, YouTube에서 검색하고, 다운로드하세요.">
+    <script>
+        // 캐시 무효화: CSS/JS 수정 후 이 숫자만 올리면 새로 불러옴 (한 곳만 수정하면 됨)
+        window.CACHE_V = 9;
+    </script>
+    <link rel="manifest" href="manifest.json" id="link-manifest">
+    <link rel="stylesheet" href="css/styles.css" id="link-css">
+    <script>
+        (function(){ var v = window.CACHE_V; var t = Date.now(); document.getElementById('link-manifest').href = 'manifest.json?v=' + v + '&_=' + t; document.getElementById('link-css').href = 'css/styles.css?v=' + v + '&_=' + t; })();
+    </script>
+    <script>
+        // config 로드 실패 시 fallback (api.js 기본값과 동일: primary 먼저)
+        window.API_BASE_URL = 'https://melodysnap.mediacommercelab.com';
+    </script>
+</head>
+<body>
+    <div class="top-bar">
+        <!-- PRO 설치 배너 (타이틀 위) -->
+        <a href="install-page/" id="pro-install-banner" class="pro-install-banner" target="_blank" rel="noopener">
+            <span class="pro-install-text">PRO 버전 무료설치</span>
+            <ion-icon name="arrow-forward-circle-outline" class="pro-install-icon" aria-hidden="true"></ion-icon>
+        </a>
+        <!-- 헤더 -->
+        <header class="app-header">
+        <div class="header-content">
+            <button type="button" id="header-home-btn" class="header-left" title="소리로 이동" aria-label="소리로 이동">
+                <div class="logo-container">
+                    <img id="app-logo" src="logo.png" alt="Melody Snap" onerror="this.style.display='none'" />
+                </div>
+                <div class="header-title-container">
+                    <div class="header-title">Melody Snap</div>
+                </div>
+            </button>
+            <nav class="nav-tabs">
+                <button class="nav-tab active" data-page="recognition">
+                    <span class="nav-icon">🎵</span>
+                    <span class="nav-text">음악소리로</span>
+                </button>
+                <button class="nav-tab" data-page="search">
+                    <span class="nav-icon">🔍</span>
+                    <span class="nav-text">검색으로</span>
+                </button>
+                <button class="nav-tab" data-page="save">
+                    <span class="nav-icon">📥</span>
+                    <span class="nav-text">링크복사</span>
+                </button>
+                <button class="nav-tab" data-page="library">
+                    <span class="nav-icon">⭐</span>
+                    <span class="nav-text">찜하기</span>
+                </button>
+            </nav>
+        </div>
+    </header>
+    </div>
+    <script>document.getElementById('app-logo').src = 'logo.png?v=' + window.CACHE_V;</script>
+
+    <!-- 메인 컨텐츠 -->
+    <main class="container">
+        <!-- 소리로 찾기 화면 -->
+        <div id="recognition-page" class="page active">
+            <div class="recognition-area">
+                <button id="recognition-btn" class="recognition-button">
+                    <ion-icon name="mic" id="mic-icon" class="recognition-icon"></ion-icon>
+                    <ion-icon name="stop" id="stop-icon" class="recognition-icon" style="display: none;"></ion-icon>
+                </button>
+                <p class="recognition-text" id="recognition-status">음악소리로 찾기를 시작하세요</p>
+                <div class="recognition-usage">
+                    <h4 class="recognition-usage-title">💡 사용법</h4>
+                    <ul class="recognition-usage-list">
+                        <li>버튼을 누른 뒤 <strong>재생 중인 음악</strong>에 마이크를 가까이 하세요.</li>
+                        <li>약 <strong>10초</strong>간 듣고 자동으로 인식합니다.</li>
+                        <li>인식이 끝나면 곡 정보와 YouTube 검색 결과가 표시됩니다.</li>
+                        <li>처음 사용 시 <strong>마이크 권한</strong> 허용이 필요합니다.</li>
+                    </ul>
+                </div>
+                <div id="recognition-result" class="recognition-result" style="display: none;">
+                    <h3 class="section-title">인식된 곡</h3>
+                    <div class="result-card recognition-result-card">
+                        <img id="result-thumbnail" src="" alt="썸네일" class="result-thumbnail" />
+                        <div class="result-info">
+                            <h4 id="result-title" class="selectable"></h4>
+                            <p id="result-artist" class="selectable"></p>
+                            <p id="result-album" class="result-album selectable" style="display: none;"></p>
+                        </div>
+                    </div>
+                    <div id="recognition-youtube-area" class="youtube-results-area" style="display: none;">
+                        <h3 class="section-title">다운로드할 영상 선택</h3>
+                        <div id="recognition-youtube-results" class="youtube-results-list"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 검색 화면 -->
+        <div id="search-page" class="page" style="display: none;">
+            <div class="search-area">
+                <h3 class="section-title">YouTube 검색으로 다운로드</h3>
+                <div class="search-row">
+                    <div class="search-input-wrap">
+                        <input type="text" id="search-input" class="search-input" placeholder="YouTube 검색..." autocomplete="off" />
+                        <button type="button" id="search-clear-btn" class="search-clear-btn" title="검색어 지우기" aria-label="검색어 지우기" style="display: none;">
+                            <ion-icon name="close-circle"></ion-icon>
+                        </button>
+                        <div id="search-suggestions" class="search-suggestions" style="display: none;" role="listbox" aria-label="검색 추천"></div>
+                    </div>
+                    <button id="search-btn" class="search-button">검색</button>
+                </div>
+                <label class="search-autocomplete-toggle">
+                    <input type="checkbox" id="search-autocomplete-toggle" checked />
+                    <span>자동완성(최근·추천)</span>
+                </label>
+                <div id="search-results" class="search-results youtube-results-list"></div>
+            </div>
+        </div>
+
+        <!-- 다운로드 화면 -->
+        <div id="save-page" class="page" style="display: none;">
+            <div class="save-area">
+                <h3 class="section-title">링크로 다운로드</h3>
+                <div class="url-input-wrap">
+                    <input type="text" id="url-input" class="url-input" placeholder="유튜브 영상주소 붙여넣기" autocomplete="off" />
+                    <button type="button" id="url-clear-btn" class="search-clear-btn" title="입력 지우기" aria-label="입력 지우기" style="display: none;">
+                        <ion-icon name="close-circle"></ion-icon>
+                    </button>
+                </div>
+                <button id="url-submit-btn" class="url-submit-button">가져오기</button>
+                <div id="video-info" class="video-info youtube-results-list" style="display: none;"></div>
+            </div>
+        </div>
+
+        <!-- 찜하기 화면 -->
+        <div id="library-page" class="page" style="display: none;">
+            <div class="library-area">
+                <h3 class="section-title">찜하기</h3>
+                <div class="library-search-wrap">
+                    <input type="text" id="library-search" class="library-search" placeholder="검색..." autocomplete="off" />
+                    <button type="button" id="library-clear-btn" class="search-clear-btn" title="검색어 지우기" aria-label="검색어 지우기" style="display: none;">
+                        <ion-icon name="close-circle"></ion-icon>
+                    </button>
+                </div>
+                <div id="library-items" class="library-items"></div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 쿠팡 파트너스: main 밖에 두어 배포 환경에서도 fixed가 뷰포트 기준으로 동작 (상위 transform 영향 없음) -->
+    <div class="ads-section">
+        <p class="ads-disclaimer">이 포스팅은 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다.</p>
+        <div id="coupang-banner">
+            <script src="https://ads-partners.coupang.com/g.js"></script>
+            <script>
+                (function(){
+                    var w = window.innerWidth;
+                    var id = w >= 769 ? 955663 : 956091;
+                    var ww = w >= 769 ? "680" : "320";
+                    if (typeof PartnersCoupang !== "undefined") {
+                        new PartnersCoupang.G({"id":id,"template":"carousel","trackingCode":"AF3962095","width":ww,"height":"100","tsource":""});
+                    }
+                })();
+            </script>
+        </div>
+    </div>
+
+    <!-- 삼성인터넷 등 HTTPS에서 래퍼가 생기면 fixed가 깨질 수 있어, 광고를 body 직계 자식으로 옮김 -->
+    <script>
+        (function(){
+            var el = document.querySelector('.ads-section');
+            if (el && el.parentNode && el.parentNode !== document.body) {
+                document.body.appendChild(el);
+            }
+        })();
+    </script>
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+    <script>
+        (function(){ var v = window.CACHE_V; var t = Date.now();
+            document.write('<script src="js/indexeddb.js?v='+v+'&_='+t+'"><\/script><script src="js/api.js?v='+v+'&_='+t+'"><\/script><script src="js/recognition.js?v='+v+'&_='+t+'"><\/script><script src="js/search.js?v='+v+'&_='+t+'"><\/script><script src="js/save.js?v='+v+'&_='+t+'"><\/script><script src="js/library.js?v='+v+'&_='+t+'"><\/script><script src="js/app.js?v='+v+'&_='+t+'"><\/script>');
+        })();
+    </script>
+    <script>
+        // 브라우저 설정 안내 (직접 열 수 없으므로 명확한 안내 제공)
+        function openBrowserSettings() {
+            const userAgent = navigator.userAgent.toLowerCase();
+            let message = '';
+            
+            if (userAgent.includes('android')) {
+                // Android 브라우저 (최신 버전 대응)
+                message = '📱 Android 브라우저 마이크 권한 설정:\n\n' +
+                         '방법 1 (가장 쉬움):\n' +
+                         '→ 브라우저 메뉴(⋮) 클릭 (화면 오른쪽 상단)\n' +
+                         '→ "사이트 설정" 또는 "권한" 찾기\n' +
+                         '→ "마이크" → "허용"으로 변경\n\n' +
+                         '방법 2:\n' +
+                         '→ 브라우저 메뉴(⋮) → 설정\n' +
+                         '→ "사이트 설정" → "마이크"\n' +
+                         '→ 이 사이트를 찾아 "허용"으로 변경\n\n' +
+                         '방법 3:\n' +
+                         '→ 주소창의 아이콘이 보이면 클릭\n' +
+                         '→ "사이트 설정" → "마이크" → "허용"\n\n' +
+                         '💡 브라우저 버전에 따라 메뉴 위치가 다를 수 있습니다.';
+            } else if (userAgent.includes('iphone') || userAgent.includes('ipad')) {
+                // iOS Safari
+                message = '📱 iOS Safari 마이크 권한 설정:\n\n' +
+                         '방법 1 (가장 쉬움):\n' +
+                         '→ 주소창 왼쪽의 "aA" 아이콘 클릭\n' +
+                         '→ "사이트 설정" 또는 "웹사이트 설정"\n' +
+                         '→ "마이크" → "허용"으로 변경\n\n' +
+                         '방법 2:\n' +
+                         '→ 설정 앱 → Safari\n' +
+                         '→ "카메라" 또는 "마이크" 허용 확인\n\n' +
+                         '방법 3:\n' +
+                         '→ Safari에서 주소창의 자물쇠 아이콘 클릭\n' +
+                         '→ "웹사이트 설정" → "마이크" 허용';
+            } else {
+                // Desktop (최신 브라우저 대응)
+                message = '💻 데스크톱 브라우저 마이크 권한 설정:\n\n' +
+                         '방법 1 (가장 쉬움):\n' +
+                         '→ 브라우저 메뉴(⋮) 클릭 (화면 오른쪽 상단)\n' +
+                         '→ "설정" → "개인정보 및 보안" → "사이트 설정"\n' +
+                         '→ "마이크" → 이 사이트를 허용 목록에 추가\n\n' +
+                         '방법 2:\n' +
+                         '→ 주소창의 아이콘이 보이면 클릭\n' +
+                         '→ "사이트 설정" 또는 "권한" → "마이크" → "허용"\n\n' +
+                         '방법 3 (Chrome/Edge):\n' +
+                         '→ 주소창에 입력: chrome://settings/content/microphone\n' +
+                         '→ 이 사이트를 허용 목록에 추가\n\n' +
+                         '방법 4 (Firefox):\n' +
+                         '→ 브라우저 메뉴(☰) → 설정\n' +
+                         '→ "개인 정보 및 보안" → "권한" → "마이크"\n\n' +
+                         '💡 브라우저 버전에 따라 메뉴 구조가 다를 수 있습니다.';
+            }
+            
+            // 모달 스타일의 안내 표시
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0,0,0,0.7);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 10000;
+                padding: 20px;
+            `;
+            
+            const content = document.createElement('div');
+            content.style.cssText = `
+                background: white;
+                padding: 24px;
+                border-radius: 12px;
+                max-width: 400px;
+                width: 100%;
+                max-height: 80vh;
+                overflow-y: auto;
+                box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            `;
+            
+            const text = document.createElement('div');
+            text.style.cssText = `
+                white-space: pre-line;
+                line-height: 1.6;
+                color: #333;
+                font-size: 14px;
+                margin-bottom: 16px;
+            `;
+            text.textContent = message;
+            
+            const closeBtn = document.createElement('button');
+            closeBtn.textContent = '닫기';
+            closeBtn.style.cssText = `
+                width: 100%;
+                padding: 12px;
+                background: #FF0000;
+                color: white;
+                border: none;
+                border-radius: 8px;
+                font-size: 16px;
+                cursor: pointer;
+                font-weight: bold;
+            `;
+            closeBtn.onclick = () => {
+                document.body.removeChild(modal);
+            };
+            
+            content.appendChild(text);
+            content.appendChild(closeBtn);
+            modal.appendChild(content);
+            document.body.appendChild(modal);
+            
+            // 모달 외부 클릭 시 닫기
+            modal.onclick = (e) => {
+                if (e.target === modal) {
+                    document.body.removeChild(modal);
+                }
+            };
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Melody Snap PRO - 앱 설치</title>
+    <meta name="description" content="유튜브 영상과 음악을 쉽게 다운로드하고 관리하세요. 무료 앱을 다운로드하세요.">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans KR', sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        /* 헤더 (앱 스타일) */
+        .app-header {
+            background: #FF0000;
+            color: white;
+            padding: 20px 20px 30px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .app-icon-small {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .app-icon-small img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            padding: 8px;
+        }
+
+        .app-title {
+            font-size: 20px;
+            font-weight: 700;
+            flex: 1;
+        }
+        .title-pro {
+            display: inline-block;
+            font-size: 10px;
+            font-weight: 700;
+            color: #fff;
+            background: #E65100;
+            padding: 2px 5px;
+            border-radius: 4px;
+            margin-left: 6px;
+            vertical-align: middle;
+            letter-spacing: 0.02em;
+        }
+
+        /* 메인 컨테이너 */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0;
+        }
+
+        /* 히어로 섹션 */
+        .hero-section {
+            background: white;
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        .hero-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .app-icon-large {
+            width: 180px;
+            height: 180px;
+            margin: 0 auto 30px;
+            border-radius: 25px;
+            background: white;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            overflow: hidden;
+            border: 1px solid #e0e0e0;
+        }
+
+        .app-icon-large img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            padding: 20px;
+        }
+
+        .app-name {
+            font-size: 32px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .app-tagline {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        /* 다운로드 버튼 */
+        .download-section {
+            margin: 30px 0;
+        }
+
+        .download-btn {
+            display: inline-block;
+            background: #FF0000;
+            color: white;
+            padding: 18px 50px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-size: 20px;
+            font-weight: 600;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(255, 0, 0, 0.3);
+            border: none;
+            cursor: pointer;
+        }
+
+        .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 0, 0, 0.4);
+        }
+
+        .download-btn:active {
+            transform: translateY(0);
+        }
+
+        .download-info {
+            margin-top: 15px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .download-warning {
+            margin-top: 10px;
+            color: #ff6b6b;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        /* 앱 스크린샷 섹션 */
+        .screenshots-section {
+            background: white;
+            padding: 40px 0;
+            margin-top: 20px;
+            overflow: hidden;
+            width: 100%;
+        }
+
+        .screenshots-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 0;
+            width: 100%;
+            margin: 0;
+        }
+
+        .screenshot-card {
+            background: #f8f9fa;
+            border-radius: 16px;
+            padding: 30px 20px;
+            text-align: center;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: visible;
+        }
+
+        .screenshot-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(0,0,0,0.05) 100%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+
+        .screenshot-card:hover {
+            transform: translateY(-10px) scale(1.03);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.25);
+            z-index: 10;
+        }
+
+        .screenshot-card:hover::before {
+            opacity: 1;
+        }
+
+        .screenshot-image {
+            width: 85%;
+            max-width: 400px;
+            height: auto;
+            aspect-ratio: 9 / 16;
+            border-radius: 20px;
+            object-fit: cover;
+            margin: 0 auto 20px;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.3), 
+                        inset 0 0 0 1px rgba(255,255,255,0.1);
+            background: #f0f0f0;
+            border: none;
+            transform: perspective(1200px) rotateX(3deg) translateZ(0);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .screenshot-card:hover .screenshot-image {
+            transform: perspective(1200px) rotateX(0deg) translateZ(20px) scale(1.08);
+            box-shadow: 0 25px 60px rgba(0,0,0,0.4),
+                        inset 0 0 0 1px rgba(255,255,255,0.2);
+        }
+
+        .screenshot-placeholder {
+            width: 85%;
+            max-width: 400px;
+            height: auto;
+            aspect-ratio: 9 / 16;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 48px;
+            margin: 0 auto 20px;
+        }
+
+        .screenshot-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .screenshot-desc {
+            font-size: 13px;
+            color: #666;
+        }
+
+        /* 업데이트 내용 섹션 */
+        .update-section {
+            background: white;
+            padding: 40px 20px;
+            margin-top: 20px;
+        }
+
+        .update-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .update-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .update-list li {
+            padding: 15px 20px;
+            margin-bottom: 10px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            font-size: 16px;
+            color: #333;
+            line-height: 1.6;
+            border-left: 4px solid #FF0000;
+        }
+
+        .update-list li:last-child {
+            margin-bottom: 0;
+        }
+
+        /* 주요 기능 섹션 */
+        .features-section {
+            background: white;
+            padding: 40px 20px;
+            margin-top: 20px;
+        }
+
+        .section-title {
+            font-size: 28px;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 40px;
+            color: #333;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .feature-card {
+            background: #f8f9fa;
+            border-radius: 16px;
+            padding: 30px;
+            text-align: center;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .feature-card:hover {
+            border-color: #FF0000;
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+
+        .feature-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        .feature-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 12px;
+        }
+
+        .feature-desc {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        /* 다운로드된 파일 목록 스타일 (앱 UI 느낌) */
+        .files-preview {
+            background: white;
+            padding: 40px 20px;
+            margin-top: 20px;
+        }
+
+        .file-list-preview {
+            max-width: 600px;
+            margin: 30px auto 0;
+        }
+
+        .file-card-preview {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .file-icon-preview {
+            width: 48px;
+            height: 48px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .file-icon-preview.video {
+            background: #ffebee;
+            color: #FF0000;
+        }
+
+        .file-icon-preview.audio {
+            background: #e8f5e9;
+            color: #4CAF50;
+        }
+
+        .file-info-preview {
+            flex: 1;
+        }
+
+        .file-title-preview {
+            font-weight: 600;
+            color: #333;
+            font-size: 15px;
+            margin-bottom: 4px;
+        }
+
+        .file-meta-preview {
+            font-size: 13px;
+            color: #666;
+        }
+
+        /* 설치 안내 */
+        .install-guide-section {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 16px;
+            padding: 30px;
+            margin: 30px 20px;
+            max-width: 1000px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .install-guide-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: #856404;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .install-steps {
+            list-style: none;
+            counter-reset: step-counter;
+        }
+
+        .install-steps li {
+            counter-increment: step-counter;
+            margin-bottom: 15px;
+            padding-left: 45px;
+            position: relative;
+            color: #856404;
+            line-height: 1.8;
+        }
+
+        .install-steps li::before {
+            content: counter(step-counter);
+            position: absolute;
+            left: 0;
+            top: 0;
+            background: #ffc107;
+            color: #856404;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        /* 광고 섹션 */
+        .ads-section {
+            background: white;
+            padding: 30px 20px;
+            margin-top: 20px;
+            text-align: center;
+            max-width: 100%;
+            overflow: hidden;
+        }
+
+        .ads-disclaimer {
+            font-size: 8px;
+            color: #999;
+            margin-bottom: 15px;
+            max-width: 100%;
+            word-break: keep-all;
+            overflow-wrap: break-word;
+            padding: 0 4px;
+        }
+
+        /* 푸터 */
+        .footer {
+            background: #333;
+            color: #999;
+            text-align: center;
+            padding: 30px 20px;
+            margin-top: 40px;
+            font-size: 14px;
+        }
+
+        .footer-links {
+            margin-top: 15px;
+        }
+
+        .footer-links a {
+            color: #999;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+
+        .footer-links a:hover {
+            color: white;
+        }
+
+        /* 반응형 */
+        @media (max-width: 768px) {
+            .app-name {
+                font-size: 24px;
+            }
+
+            .app-tagline {
+                font-size: 16px;
+            }
+
+            .download-btn {
+                padding: 16px 40px;
+                font-size: 18px;
+            }
+
+            .screenshots-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .screenshots-section {
+                padding: 30px 0;
+                margin-left: calc(-50vw + 50%);
+                margin-right: calc(-50vw + 50%);
+                width: 100vw;
+                max-width: 100vw;
+            }
+
+            .screenshots-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .screenshot-card {
+                padding: 30px 15px;
+                border-radius: 16px;
+            }
+
+            .screenshot-image {
+                width: 85%;
+                max-width: 320px;
+                height: auto;
+                aspect-ratio: 9 / 16;
+                border-radius: 20px;
+                object-fit: cover;
+                margin: 0 auto 20px;
+                transform: perspective(1200px) rotateX(2deg) translateZ(0);
+                box-shadow: 0 15px 50px rgba(0,0,0,0.3);
+            }
+
+            .screenshot-card:hover .screenshot-image {
+                transform: perspective(1200px) rotateX(0deg) translateZ(10px) scale(1.03);
+                box-shadow: 0 25px 60px rgba(0,0,0,0.4);
+            }
+
+            .screenshot-placeholder {
+                width: 85%;
+                max-width: 320px;
+                height: auto;
+                aspect-ratio: 9 / 16;
+                border-radius: 20px;
+                margin: 0 auto 20px;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .section-title {
+                font-size: 24px;
+            }
+
+            .coupang-banner-pc {
+                display: none !important;
+            }
+
+            .coupang-banner-mobile {
+                display: block !important;
+            }
+        }
+
+        @media (min-width: 769px) {
+            .coupang-banner-pc {
+                display: block !important;
+            }
+
+            .coupang-banner-mobile {
+                display: none !important;
+            }
+        }
+
+        /* 상단 띠 배너: PRO 무료설치 + 웹으로 이용하기 */
+        @keyframes pro-banner-gradient {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        .top-banner-strip {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 8px 12px;
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: none;
+            color: #fff;
+        }
+        .pro-install-banner-strip {
+            background: linear-gradient(90deg, #E65100, #FF9800, #E65100, #FF9800);
+            background-size: 200% 100%;
+            background-position: 0% 50%;
+            border-bottom: 1px solid #BF360C;
+            animation: pro-banner-gradient 3s ease-in-out infinite;
+        }
+        .pro-install-banner-strip:hover {
+            background: #BF360C;
+            background-size: auto;
+            animation: none;
+        }
+        .pro-install-banner-strip .banner-arrow {
+            font-size: 22px;
+            width: 22px;
+            height: 22px;
+            flex-shrink: 0;
+        }
+    </style>
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+</head>
+<body>
+    <!-- 상단 띠: 웹으로 이용하기 (웹앱으로 이동) -->
+    <a href="../index.html" class="top-banner-strip pro-install-banner-strip">
+        웹으로 이용하기<ion-icon name="arrow-forward-circle-outline" class="banner-arrow" aria-hidden="true"></ion-icon>
+    </a>
+    <!-- 앱 헤더 (스크린샷 스타일) -->
+    <div class="app-header">
+        <div class="header-content">
+            <div class="app-icon-small">
+                <img src="../logo.png" alt="Melody Snap 아이콘" />
+            </div>
+            <div class="app-title">Melody Snap <span class="title-pro">PRO</span></div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- 히어로 섹션 -->
+        <div class="hero-section">
+            <div class="hero-content">
+                <div class="app-icon-large">
+                    <img src="../logo.png" alt="Melody Snap 로고" />
+                </div>
+                <h1 class="app-name">Melody Snap <span class="title-pro">PRO</span></h1>
+                <p class="app-tagline">음악과 영상을 쉽게 찾고, 다운로드하고 관리하세요</p>
+                
+                <div class="download-section" id="download">
+                    <a href="https://github.com/appdison76/youtube_down/releases/download/1.2.3/melody-snap-1.2.3.apk" 
+                       class="download-btn"
+                       id="downloadBtn"
+                       download="melody-snap-1.2.3.apk" 
+                       type="application/vnd.android.package-archive">
+                         📥 앱 다운로드
+                    </a>
+                    <div class="download-info">
+                         버전 1.2.3 | 크기: 약 113MB
+                    </div>
+                    <div class="download-warning">
+                        ⚠️ 파일이 크므로 WiFi 환경에서 다운로드하세요
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 업데이트 내용 섹션 -->
+        <div class="update-section">
+            <h2 class="section-title">📝 버전 1.2.3 업데이트 내용</h2>
+            <div class="update-content">
+                <ul class="update-list">
+                    <li>🎵 <strong>음악 찾기 (샤잠 기능)</strong> - 재생 중인 음악을 인식해 곡 정보를 찾고, YouTube에서 바로 검색·다운로드할 수 있습니다.</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- 앱 스크린샷 섹션 (미리보기) -->
+        <div class="screenshots-section">
+            <h2 class="section-title">앱 미리보기</h2>
+            <div class="screenshots-grid">
+                <div class="screenshot-card">
+                    <img src="./screenshots/screenshot-music-recognition.jpg" 
+                         alt="음악 찾기 화면" 
+                         class="screenshot-image"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="screenshot-placeholder" style="display: none;">🎵</div>
+                    <div class="screenshot-title">음악 찾기 (샤잠 기능)</div>
+                    <div class="screenshot-desc">재생되는 음악을 인식하여 곡 정보를 찾고, YouTube에서 바로 검색하여 다운로드할 수 있습니다</div>
+                </div>
+                <div class="screenshot-card">
+                    <img src="./screenshots/screenshot-search.jpg" 
+                         alt="YouTube 검색 화면" 
+                         class="screenshot-image"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="screenshot-placeholder" style="display: none;">🔍</div>
+                    <div class="screenshot-title">YouTube 검색</div>
+                    <div class="screenshot-desc">검색어로 YouTube 영상을 직접 검색하고, 검색 결과에서 바로 다운로드하거나 찜하기에 추가할 수 있습니다</div>
+                </div>
+                <div class="screenshot-card">
+                    <img src="./screenshots/screenshot-download.jpg" 
+                         alt="영상 & 음악 다운로드 화면" 
+                         class="screenshot-image"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="screenshot-placeholder" style="display: none;">📥</div>
+                    <div class="screenshot-title">영상 & 음악 다운로드</div>
+                    <div class="screenshot-desc">YouTube 앱에서 공유하기를 사용하거나 URL을 입력하여 영상과 음악을 다운로드하세요</div>
+                </div>
+                <div class="screenshot-card">
+                    <img src="./screenshots/screenshot-files.jpg" 
+                         alt="영상 음악 관리 화면" 
+                         class="screenshot-image"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="screenshot-placeholder" style="display: none;">📁</div>
+                    <div class="screenshot-title">영상 음악 관리</div>
+                    <div class="screenshot-desc">다운로드한 영상과 음악을 재생, 공유, 재저장, 삭제할 수 있습니다</div>
+                </div>
+                <div class="screenshot-card">
+                    <img src="./screenshots/screenshot-favorites.jpg" 
+                         alt="찜하기 화면" 
+                         class="screenshot-image"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="screenshot-placeholder" style="display: none;">⭐</div>
+                    <div class="screenshot-title">찜하기</div>
+                    <div class="screenshot-desc">좋아하는 영상을 찜하기 목록에 저장하고 관리하세요</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 다운로드된 파일 목록 미리보기 (앱 UI 느낌) -->
+        <div class="files-preview">
+            <h2 class="section-title">다운로드한 파일 관리</h2>
+            <div class="file-list-preview">
+                <div class="file-card-preview">
+                    <div class="file-icon-preview video">🎬</div>
+                    <div class="file-info-preview">
+                        <div class="file-title-preview">서태지와 아이들 - '하여가'</div>
+                        <div class="file-meta-preview">18.47 MB · 영상</div>
+                    </div>
+                </div>
+                <div class="file-card-preview">
+                    <div class="file-icon-preview audio">🎵</div>
+                    <div class="file-info-preview">
+                        <div class="file-title-preview">Gero & Migle Bachata Creme de...</div>
+                        <div class="file-meta-preview">18.45 MB · 음악</div>
+                    </div>
+                </div>
+                <div class="file-card-preview">
+                    <div class="file-icon-preview video">🎬</div>
+                    <div class="file-info-preview">
+                        <div class="file-title-preview">SOLO CONMIGO - Romeo Santos...</div>
+                        <div class="file-meta-preview">18.99 MB · 영상</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 주요 기능 섹션 -->
+        <div class="features-section">
+            <h2 class="section-title">주요 기능</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🎵</div>
+                    <h3 class="feature-title">음악 찾기 (Shazam)</h3>
+                    <p class="feature-desc">재생되는 음악을 인식하여 곡 정보를 찾고, YouTube에서 바로 검색하여 다운로드할 수 있습니다</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔍</div>
+                    <h3 class="feature-title">YouTube 검색</h3>
+                    <p class="feature-desc">검색어로 YouTube 영상을 직접 검색하고, 검색 결과에서 바로 다운로드하거나 찜하기에 추가할 수 있습니다</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📱</div>
+                    <h3 class="feature-title">유튜브 공유</h3>
+                    <p class="feature-desc">YouTube 앱에서 공유하기를 사용하거나 URL을 복사해서 입력하여 영상을 가져오세요</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📥</div>
+                    <h3 class="feature-title">영상 & 음악 다운로드</h3>
+                    <p class="feature-desc">고품질 영상과 음악 파일을 선택적으로 다운로드하세요</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📁</div>
+                    <h3 class="feature-title">영상 음악 관리</h3>
+                    <p class="feature-desc">다운로드한 영상과 음악을 재생, 공유, 재저장, 삭제할 수 있습니다</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">⭐</div>
+                    <h3 class="feature-title">찜하기 & 그룹</h3>
+                    <p class="feature-desc">원하는 영상을 찜하기에 저장하고, 그룹으로 묶어 정리할 수 있습니다</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📋</div>
+                    <h3 class="feature-title">플레이리스트</h3>
+                    <p class="feature-desc">나만의 재생 목록을 만들어 플레이리스트로 관리하세요</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🎬</div>
+                    <h3 class="feature-title">영상/음악 필터</h3>
+                    <p class="feature-desc">다운로드한 파일을 영상과 음악으로 분류해서 볼 수 있습니다</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔎</div>
+                    <h3 class="feature-title">빠른 검색</h3>
+                    <p class="feature-desc">파일명으로 빠르게 원하는 파일을 찾아보세요</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 설치 안내 -->
+        <div class="install-guide-section">
+            <h3 class="install-guide-title">⚠️ 설치 권한 설정 안내</h3>
+            <p style="margin-bottom: 20px; color: #856404; line-height: 1.8;">
+                APK 설치를 위해서는 먼저 설치 권한을 허용해야 합니다. 폰 제조사와 안드로이드 버전에 따라 설정 경로가 다를 수 있습니다.
+            </p>
+            
+            <strong style="display: block; margin-bottom: 10px; color: #856404;">📱 방법 1: 자동 설정 (권장)</strong>
+            <ul class="install-steps" style="margin-bottom: 20px;">
+                <li>APK 파일을 다운로드 후 열어보세요</li>
+                <li>"이 앱을 설치할 수 없음" 메시지가 나타나면</li>
+                <li>메시지의 <strong>"설정"</strong> 또는 <strong>"권한 허용"</strong> 버튼을 클릭하세요</li>
+                <li>해당 앱(Chrome 또는 파일 관리자)에 대해 <strong>"이 앱 설치 허용"</strong>을 켜주세요</li>
+            </ul>
+
+            <strong style="display: block; margin-bottom: 10px; color: #856404;">⚙️ 방법 2: 수동 설정</strong>
+            <ul class="install-steps">
+                <li><strong>최신 안드로이드 (14+):</strong> 설정 → 보안 및 개인정보 보호 → 보안 위험 자동 차단 해제</li>
+                <li><strong>안드로이드 8.0~13:</strong> 설정 → 앱 → Chrome(또는 사용한 브라우저) → 이 앱 설치 허용</li>
+                <li><strong>삼성 갤럭시:</strong> 설정 → 바이오메트릭 및 보안 → 알 수 없는 앱 설치 → Chrome 선택 → 허용</li>
+                <li><strong>구글 픽셀:</strong> 설정 → 보안 → 알 수 없는 앱 설치 → Chrome 선택 → 허용</li>
+                <li><strong>샤오미:</strong> 설정 → 앱 → 권한 → 알 수 없는 소스 설치 → Chrome 허용</li>
+                <li><strong>LG:</strong> 설정 → 보안 → 알 수 없는 소스 설치 허용</li>
+            </ul>
+
+            <div style="margin-top: 20px; padding-top: 20px; border-top: 2px solid #ffc107;">
+                <p style="color: #856404; line-height: 1.8;">
+                    💡 <strong>팁:</strong> 파일이 크므로 <strong>WiFi 환경에서 다운로드</strong>하세요. 다운로드가 <strong>완전히 끝날 때까지</strong> 기다려주세요.
+                </p>
+            </div>
+        </div>
+
+        <!-- 광고 섹션 -->
+        <div class="ads-section">
+            <p class="ads-disclaimer">
+                이 포스팅은 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다.
+            </p>
+            <!-- PC용 배너 -->
+            <div class="coupang-banner-pc" style="display: none;">
+                <script src="https://ads-partners.coupang.com/g.js"></script>
+                <script>
+                    new PartnersCoupang.G({"id":955663,"template":"carousel","trackingCode":"AF3962095","width":"680","height":"140","tsource":""});
+                </script>
+            </div>
+            
+            <!-- 모바일용 배너 -->
+            <div class="coupang-banner-mobile" style="display: none;">
+                <script src="https://ads-partners.coupang.com/g.js"></script>
+                <script>
+                    new PartnersCoupang.G({"id":956091,"template":"carousel","trackingCode":"AF3962095","width":"320","height":"140","tsource":""});
+                </script>
+            </div>
+        </div>
+    </div>
+
+    <!-- 푸터 -->
+    <div class="footer">
+        <p>© 2024 Melody Snap. All rights reserved.</p>
+        <div class="footer-links">
+            <a href="#">개인정보처리방침</a>
+            <a href="#">이용약관</a>
+        </div>
+    </div>
+
+    <script>
+        // 다운로드 버튼 클릭 추적
+        document.getElementById('downloadBtn').addEventListener('click', function() {
+            console.log('Download button clicked');
+            // Google Analytics 이벤트 추적 등 추가 가능
+        });
+    </script>
+</body>
+</html>
