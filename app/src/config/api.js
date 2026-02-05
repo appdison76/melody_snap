@@ -5,10 +5,10 @@
 import { AppState, Linking } from 'react-native';
 
 // 외부 설정 파일 URL (version.json과 동일한 위치)
-const CONFIG_URL = 'https://appdison76.github.io/youtube_down/web-app/install-page/config.json';
+const CONFIG_URL = 'https://melodysnap-app.mediacommercelab.com/web-app/install-page/config.json';
 
 /** 웹앱 베이스. #save 로 링크복사(링크로 다운로드) 탭 직접 오픈 */
-export const LINK_DOWN_BASE_URL = 'https://appdison76.github.io/youtube_down/web-app/';
+export const LINK_DOWN_BASE_URL = 'https://melodysnap-app.mediacommercelab.com/web-app/';
 const LINK_DOWN_HASH = '#save';
 
 /** 링크다운(링크복사) 웹 페이지를 연다. from_app=1 쿼리 + #save. url 있으면 쿼리에 추가. 웹에서 #save 읽어 링크복사 탭 표시 */
