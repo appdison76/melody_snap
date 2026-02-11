@@ -25,9 +25,11 @@ import LanguageSelector from '../components/LanguageSelector';
 import { useLanguage } from '../contexts/LanguageContext';
 import { translations } from '../locales/translations';
 import { searchVideos } from '../services/downloadService';
+import { fetchWithFallback } from '../config/api';
 import { addFavorite, removeFavorite, isFavorite, getFavorites } from '../services/database';
 import { openLinkDownWithFlag } from '../config/api';
 import ACRCloudModule from '../modules/ACRCloudModule';
+import ShazamModule from '../modules/ShazamModule';
 import { 
   sendRecognitionNotification, 
   sendRecognitionFailedNotification,
@@ -125,6 +127,21 @@ export default function MusicRecognitionScreen({ navigation }) {
         } catch (initError) {
           console.warn('[MusicRecognitionScreen] ⚠️ ACRCloud initialization error (non-fatal):', initError.message);
           // 초기화 실패해도 앱은 계속 실행
+        }
+        // Shazam 1순위 사용 시: 서버에서 토큰 받아 초기화
+        if (ShazamModule?.isAvailable?.()) {
+          try {
+            const res = await fetchWithFallback('/api/shazam-token');
+            if (res.ok) {
+              const data = await res.json();
+              if (data?.token && ShazamModule.initialize) {
+                const ok = await ShazamModule.initialize(data.token);
+                console.log('[MusicRecognitionScreen] Shazam initialize:', ok ? '✅' : '⚠️');
+              }
+            }
+          } catch (shazamErr) {
+            console.warn('[MusicRecognitionScreen] Shazam token fetch/init failed (ACRCloud fallback):', shazamErr?.message);
+          }
         }
       } catch (error) {
         // ✅ 첫 설치 시 권한이 없어서 실패할 수 있으므로 에러를 조용히 처리
@@ -710,7 +727,65 @@ export default function MusicRecognitionScreen({ navigation }) {
         }
       }
       
-      console.log('[MusicRecognitionScreen] Step 3: Checking ACRCloud initialization...');
+      console.log('[MusicRecognitionScreen] Step 3: Checking recognition engine (Shazam → ACRCloud 2-way fallback)...');
+
+      // 2중 폴백: Shazam (1순위) → ACRCloud (2순위)
+      if (Platform.OS === 'android' && ShazamModule?.isAvailable?.()) {
+        try {
+          console.log('[MusicRecognitionScreen] Step 3a: Trying Shazam first...');
+          if (appStateRef.current === 'active') setIsRecognizing(true);
+          let shazamSucceeded = false;
+          const handleShazamResult = (result) => {
+            if (shazamSucceeded) return;
+            shazamSucceeded = true;
+            if (recordingTimeoutRef.current) {
+              clearTimeout(recordingTimeoutRef.current);
+              recordingTimeoutRef.current = null;
+            }
+            const newResult = {
+              title: result?.title || '',
+              artist: result?.artist || '',
+              album: result?.album || '',
+            };
+            setIsRecognizing(false);
+            setRecognitionResult(newResult);
+            setRecognitionError(null);
+            if (ACRCloudModule?.stopRecognizing) ACRCloudModule.stopRecognizing().catch(() => {});
+            if (Platform.OS === 'android') {
+              try {
+                const { MusicRecognitionService } = NativeModules;
+                if (MusicRecognitionService) MusicRecognitionService.stopService();
+              } catch (_) {}
+            }
+            sendRecognitionNotification(newResult.title, newResult.artist, newResult);
+            if (result?.title) searchOnYouTube(result.title, result?.artist || '');
+          };
+
+          let resolveShazamWait = null;
+          const shazamWaitPromise = new Promise((r) => { resolveShazamWait = r; });
+          const handleShazamResultWithResolve = (result) => {
+            handleShazamResult(result);
+            if (typeof resolveShazamWait === 'function') resolveShazamWait();
+          };
+          const shazamListener = ShazamModule.addListener?.('onRecognitionResult', handleShazamResultWithResolve);
+          await ShazamModule.startRecognizing?.();
+          const timeoutId = setTimeout(() => { if (typeof resolveShazamWait === 'function') resolveShazamWait(); }, 15000);
+          await shazamWaitPromise;
+          clearTimeout(timeoutId);
+          shazamListener?.remove?.();
+          await ShazamModule.stopRecognizing?.().catch(() => {});
+
+          if (shazamSucceeded) {
+            console.log('[MusicRecognitionScreen] ✅ Shazam recognition succeeded, not using ACRCloud');
+            return;
+          }
+          console.log('[MusicRecognitionScreen] Step 3b: Shazam no result, falling back to ACRCloud...');
+        } catch (shazamError) {
+          console.log('[MusicRecognitionScreen] Shazam failed, using ACRCloud:', shazamError?.message);
+        }
+      } else {
+        console.log('[MusicRecognitionScreen] Shazam not available, using ACRCloud directly');
+      }
 
       // 이전 결과 초기화 (새 인식을 위해 - 샤잠처럼 매번 새로 시작)
       console.log('[MusicRecognitionScreen] 🔄 Clearing previous results for new recognition...');

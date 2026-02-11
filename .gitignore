@@ -12,6 +12,11 @@ downloads/
 *.log
 .DS_Store
 
+# Apple .p8 비밀키 (절대 커밋 금지)
+*.p8
+app/secrets/
+**/secrets/
+
 
 
 

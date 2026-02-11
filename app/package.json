@@ -31,6 +31,7 @@
     "expo-media-session-module": "file:./packages/expo-media-session-module",
     "expo-media-store-module": "file:./packages/expo-media-store-module",
     "expo-acrcloud-module": "file:./packages/expo-acrcloud-module",
+    "expo-shazam-module": "file:./packages/expo-shazam-module",
     "expo-notifications": "~0.32.16",
     "expo-sharing": "^14.0.8",
     "expo-sqlite": "^16.0.10",

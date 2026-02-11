@@ -13,6 +13,7 @@ const localPackages = [
   'expo-acrcloud-module',
   'expo-media-session-module',
   'expo-media-store-module',
+  'expo-shazam-module',
 ];
 
 localPackages.forEach((name) => {

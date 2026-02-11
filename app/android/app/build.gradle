@@ -117,21 +117,8 @@ android {
             shrinkResources enableShrinkResources.toBoolean()
             minifyEnabled enableMinifyInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
-            def enablePngCrunchInRelease = findProperty('android.enablePngCrunchInReleaseBuilds') ?: 'false'
+            def enablePngCrunchInRelease = findProperty('android.enablePngCrunchInReleaseBuilds') ?: 'true'
             crunchPngs enablePngCrunchInRelease.toBoolean()
-        }
-    }
-    
-    // APK 파일명에 버전 포함 (릴리즈 빌드만)
-    applicationVariants.all { variant ->
-        variant.outputs.all { output ->
-            def buildType = variant.buildType.name
-            if (buildType == "release") {
-                def versionName = variant.versionName
-                def outputFileName = "melody-snap-${versionName}.apk"
-                output.outputFileName = outputFileName
-            }
-            // debug 빌드는 기본 파일명 사용 (버전 표시 안 함)
         }
     }
     packagingOptions {
@@ -142,8 +129,6 @@ android {
     }
     androidResources {
         ignoreAssetsPattern '!.svn:!.git:!.ds_store:!*.scc:!CVS:!thumbs.db:!picasa.ini:!*~'
-        // AAPT2 오류 방지: 리소스 컴파일 실패 시 경고만 표시
-        failOnMissingConfigEntry = false
     }
 }
 
@@ -170,7 +155,6 @@ android {
 dependencies {
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
-    implementation("androidx.media:media:1.6.0")
 
     def isGifEnabled = (findProperty('expo.gif.enabled') ?: "") == "true";
     def isWebpEnabled = (findProperty('expo.webp.enabled') ?: "") == "true";

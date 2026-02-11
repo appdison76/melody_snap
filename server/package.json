@@ -9,8 +9,9 @@
     "dev": "nodemon server.js",
     "tunnel": "start-server-ngrok.bat"
   },
-  "dependencies": {
-    "acrcloud": "^1.4.0",
+"dependencies": {
+  "jsonwebtoken": "^9.0.2",
+  "acrcloud": "^1.4.0",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "expo-media-library": "^18.2.1",

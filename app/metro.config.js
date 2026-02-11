@@ -16,6 +16,7 @@ config.resolver.extraNodeModules = {
   'expo-acrcloud-module': path.resolve(__dirname, 'packages/expo-acrcloud-module'),
   'expo-media-session-module': path.resolve(__dirname, 'packages/expo-media-session-module'),
   'expo-media-store-module': path.resolve(__dirname, 'packages/expo-media-store-module'),
+  'expo-shazam-module': path.resolve(__dirname, 'packages/expo-shazam-module'),
 };
 
 module.exports = config;
