@@ -18,6 +18,7 @@ import {
   AppState,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { Audio } from 'expo-av';
 import AdBanner from '../components/AdBanner';
@@ -66,6 +67,7 @@ export default function MusicRecognitionScreen({ navigation }) {
   // 내부 소리 모드 제거 - 주변 소리 모드만 사용
   const useInternalAudio = false;
   const pulseAnim = useRef(new Animated.Value(1)).current;
+  const circleAnims = useRef([0, 1, 2, 3, 4].map(() => ({ scale: new Animated.Value(0.6), opacity: new Animated.Value(0.4) }))).current;
   const recordingTimeoutRef = useRef(null);
   const appStateRef = useRef(AppState.currentState);
   const shouldContinueRecognitionRef = useRef(true); // 인식 계속 여부 플래그
@@ -492,19 +494,19 @@ export default function MusicRecognitionScreen({ navigation }) {
     };
   }, []);
 
-  // 펄스 애니메이션
+  // 펄스 애니메이션 (중앙 아이콘)
   useEffect(() => {
     if (isRecognizing) {
       const pulse = Animated.loop(
         Animated.sequence([
           Animated.timing(pulseAnim, {
-            toValue: 1.2,
-            duration: 1000,
+            toValue: 1.1,
+            duration: 800,
             useNativeDriver: true,
           }),
           Animated.timing(pulseAnim, {
             toValue: 1,
-            duration: 1000,
+            duration: 800,
             useNativeDriver: true,
           }),
         ])
@@ -514,6 +516,36 @@ export default function MusicRecognitionScreen({ navigation }) {
     } else {
       pulseAnim.setValue(1);
     }
+  }, [isRecognizing]);
+
+  // 샤잠 스타일 동심원 펄스 애니메이션
+  useEffect(() => {
+    if (!isRecognizing) {
+      circleAnims.forEach(({ scale, opacity }) => {
+        scale.setValue(0.6);
+        opacity.setValue(0);
+      });
+      return;
+    }
+    const anims = circleAnims.map(({ scale, opacity }, i) => {
+      const delay = i * 400;
+      return Animated.loop(
+        Animated.sequence([
+          Animated.delay(delay),
+          Animated.parallel([
+            Animated.timing(scale, { toValue: 2.2, duration: 2000, useNativeDriver: true }),
+            Animated.timing(opacity, { toValue: 0, duration: 2000, useNativeDriver: true }),
+          ]),
+          Animated.parallel([
+            Animated.timing(scale, { toValue: 0.6, duration: 1, useNativeDriver: true }),
+            Animated.timing(opacity, { toValue: 0.4, duration: 1, useNativeDriver: true }),
+          ]),
+        ]),
+        { iterations: -1 }
+      );
+    });
+    anims.forEach(a => a.start());
+    return () => anims.forEach(a => a.stop());
   }, [isRecognizing]);
 
   // 마이크 권한 확인 및 요청 (Android)
@@ -1081,29 +1113,50 @@ export default function MusicRecognitionScreen({ navigation }) {
         contentContainerStyle={styles.contentContainer}
         showsVerticalScrollIndicator={true}
       >
-        {/* 인식 버튼 */}
+        {/* 인식 영역 - 샤잠 스타일 파란 그라데이션 + 동심원 */}
         <View style={styles.recognitionArea}>
-          <TouchableOpacity
-            style={[
-              styles.recognitionButton,
-              isRecognizing && styles.recognitionButtonActive,
-            ]}
-            onPress={isRecognizing ? stopRecognition : startRecognition}
-            disabled={loadingYoutube}
+          <LinearGradient
+            colors={['#0055A4', '#007AFF', '#0047AB']}
+            style={styles.recognitionGradient}
+            start={{ x: 0.5, y: 0 }}
+            end={{ x: 0.5, y: 1 }}
           >
-            <Animated.View
-              style={[
-                styles.recognitionButtonInner,
-                { transform: [{ scale: pulseAnim }] },
-              ]}
-            >
-              <Ionicons
-                name={isRecognizing ? 'stop' : 'mic'}
-                size={64}
-                color="#fff"
+            {/* 동심원 펄스 (인식 중일 때만) */}
+            {circleAnims.map(({ scale, opacity }, i) => (
+              <Animated.View
+                key={i}
+                style={[
+                  styles.pulseCircle,
+                  {
+                    transform: [{ scale }],
+                    opacity,
+                  },
+                ]}
               />
-            </Animated.View>
-          </TouchableOpacity>
+            ))}
+            {/* 중앙 버튼 */}
+            <TouchableOpacity
+              style={styles.recognitionButton}
+              onPress={isRecognizing ? stopRecognition : startRecognition}
+              disabled={loadingYoutube}
+              activeOpacity={0.9}
+            >
+              <Animated.View
+                style={[
+                  styles.recognitionButtonInner,
+                  { transform: [{ scale: pulseAnim }] },
+                ]}
+              >
+                <View style={styles.recognitionIconCircle}>
+                  <Ionicons
+                    name={isRecognizing ? 'stop' : 'mic'}
+                    size={56}
+                    color="#fff"
+                  />
+                </View>
+              </Animated.View>
+            </TouchableOpacity>
+          </LinearGradient>
 
           <Text style={styles.recognitionText}>
             {isRecognizing
@@ -1111,13 +1164,10 @@ export default function MusicRecognitionScreen({ navigation }) {
               : t.musicRecognitionTapToStart}
           </Text>
 
-              {isRecognizing && (
+          {isRecognizing && (
             <View style={styles.recognitionHints}>
               <Text style={styles.recognitionHint}>
                 {t.musicRecognitionListeningHint}
-              </Text>
-              <Text style={styles.recognitionHint}>
-                {t.musicRecognitionHowToUse}
               </Text>
               <Text style={styles.recognitionHint}>
                 {t.musicRecognitionVolumeCheck}
@@ -1133,7 +1183,6 @@ export default function MusicRecognitionScreen({ navigation }) {
               <TouchableOpacity
                 style={styles.permissionButton}
                 onPress={async () => {
-                  console.log('[MusicRecognitionScreen] 🔍 Manual permission check requested');
                   const hasPermission = await requestMicrophonePermission();
                   if (hasPermission) {
                     Alert.alert(t.notice, t.musicRecognitionPermissionGranted);
@@ -1143,10 +1192,7 @@ export default function MusicRecognitionScreen({ navigation }) {
                       t.musicRecognitionPermissionRequired,
                       [
                         { text: t.cancel, style: 'cancel' },
-                        { 
-                          text: t.openSettings, 
-                          onPress: () => Linking.openSettings()
-                        },
+                        { text: t.openSettings, onPress: () => Linking.openSettings() },
                       ]
                     );
                   }
@@ -1367,31 +1413,45 @@ const styles = StyleSheet.create({
   },
   recognitionArea: {
     alignItems: 'center',
-    marginTop: 40,
+    marginTop: 20,
     marginBottom: 40,
   },
-  recognitionButton: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    backgroundColor: '#FF0000',
+  recognitionGradient: {
+    width: '100%',
+    minHeight: 320,
+    borderRadius: 24,
+    overflow: 'hidden',
     justifyContent: 'center',
     alignItems: 'center',
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
+    marginBottom: 16,
   },
-  recognitionButtonActive: {
-    backgroundColor: '#cc0000',
+  pulseCircle: {
+    position: 'absolute',
+    width: 140,
+    height: 140,
+    borderRadius: 70,
+    borderWidth: 2,
+    borderColor: 'rgba(255,255,255,0.5)',
+    backgroundColor: 'transparent',
+  },
+  recognitionButton: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 8,
   },
   recognitionButtonInner: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  recognitionIconCircle: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: 'rgba(255,255,255,0.25)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: 'rgba(255,255,255,0.5)',
   },
   recognitionText: {
     marginTop: 24,
