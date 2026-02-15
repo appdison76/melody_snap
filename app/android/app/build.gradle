@@ -199,3 +199,20 @@ dependencies {
         implementation jscFlavor
     }
 }
+
+// AAB 파일명에 버전 표시 (app-release-1.2.3-23.aab)
+tasks.whenTaskAdded { task ->
+    if (task.name == 'bundleRelease') {
+        task.doLast {
+            def bundleDir = file("${buildDir}/outputs/bundle/release")
+            def aabFile = new File(bundleDir, "app-release.aab")
+            if (aabFile.exists()) {
+                def versionName = android.defaultConfig.versionName
+                def versionCode = android.defaultConfig.versionCode
+                def newName = "app-release-${versionName}-${versionCode}.aab"
+                aabFile.renameTo(new File(bundleDir, newName))
+                println "AAB 출력: ${newName}"
+            }
+        }
+    }
+}
