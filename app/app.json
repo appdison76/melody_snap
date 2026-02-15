@@ -15,7 +15,10 @@
     "ios": {
       "supportsTablet": true,
       "infoPlist": {
-        "UIBackgroundModes": ["audio", "fetch"]
+        "UIBackgroundModes": [
+          "audio",
+          "fetch"
+        ]
       }
     },
     "android": {
@@ -37,14 +40,16 @@
       ],
       "package": "com.appdison76.app",
       "config": {
-        "audio": {
-          "staysActiveInBackground": true
-        },
         "googleMobileAdsAppId": "ca-app-pub-2041836899811349~3682958936"
       }
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "f6a6b0bb-e03d-49b4-955d-1da10b393fa5"
+      }
     }
   }
 }
