@@ -17,7 +17,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { searchVideos, getAutocomplete } from '../services/downloadService';
+import { searchVideos, getAutocomplete } from '../services/searchService';
 import { addFavorite, removeFavorite, isFavorite, initDatabase } from '../services/database';
 import { openLinkDownWithFlag } from '../config/api';
 import AdBanner from '../components/AdBanner';
@@ -32,7 +32,7 @@ const MAX_HISTORY = 1000; // 최대 1000개 저장
 
 export default function VideoSearchScreen({ navigation, route }) {
   const { currentLanguage } = useLanguage();
-  const t = translations[currentLanguage];
+  const t = translations[currentLanguage] || translations.ko || {};
   const [searchQuery, setSearchQuery] = useState('');
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);

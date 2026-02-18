@@ -35,5 +35,13 @@ rootProject.name = 'MelodySnap'
 
 expoAutolinking.useExpoVersionCatalog()
 
+// 로컬 expo-share-url-module (prebuild 후에도 공유 인텐트 유지)
+def appDir = rootDir.getParentFile()
+def shareUrlModuleDir = new File(appDir, 'packages/expo-share-url-module/android')
+if (shareUrlModuleDir.exists()) {
+  include ':expo-share-url-module'
+  project(':expo-share-url-module').projectDir = shareUrlModuleDir
+}
+
 include ':app'
 includeBuild(expoAutolinking.reactNativeGradlePlugin)

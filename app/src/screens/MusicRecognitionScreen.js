@@ -25,7 +25,7 @@ import AdBanner from '../components/AdBanner';
 import LanguageSelector from '../components/LanguageSelector';
 import { useLanguage } from '../contexts/LanguageContext';
 import { translations } from '../locales/translations';
-import { searchVideos } from '../services/downloadService';
+import { searchVideos } from '../services/searchService';
 import { fetchWithFallback } from '../config/api';
 import { addFavorite, removeFavorite, isFavorite, getFavorites } from '../services/database';
 import { openLinkDownWithFlag } from '../config/api';
@@ -40,7 +40,7 @@ import {
 
 export default function MusicRecognitionScreen({ navigation }) {
   const { currentLanguage } = useLanguage();
-  const t = translations[currentLanguage];
+  const t = translations[currentLanguage] || translations.ko || {};
   const [isRecognizing, setIsRecognizing] = useState(false);
   const [recognitionResult, setRecognitionResult] = useState(null);
   const [youtubeResults, setYoutubeResults] = useState([]);

@@ -1,8 +1,11 @@
 package com.appdison76.app
 
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 
+import com.appdison76.shareurl.ShareUrlHolder
+import com.appdison76.shareurl.ShareUrlModule
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate
 import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint.fabricEnabled
@@ -17,6 +20,23 @@ class MainActivity : ReactActivity() {
     // This is required for expo-splash-screen.
     setTheme(R.style.AppTheme);
     super.onCreate(null)
+    handleShareIntent(intent)
+  }
+
+  override fun onNewIntent(intent: Intent) {
+    super.onNewIntent(intent)
+    setIntent(intent)
+    handleShareIntent(intent)
+  }
+
+  private fun handleShareIntent(intent: Intent?) {
+    if (intent?.action != Intent.ACTION_SEND) return
+    val text = intent.getStringExtra(Intent.EXTRA_TEXT)?.trim() ?: return
+    if (text.isEmpty()) return
+    if (!text.startsWith("http") && !text.contains("youtube") && !text.contains("youtu.be")) return
+    val url = if (text.startsWith("http")) text else "https://$text"
+    ShareUrlHolder.pendingUrl = url
+    ShareUrlModule.notifySharedUrl(url)
   }
 
   /**

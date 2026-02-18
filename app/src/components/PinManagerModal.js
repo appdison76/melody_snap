@@ -28,7 +28,7 @@ export default function PinManagerModal({
   files = [], // 파일 목록 (플레이리스트에 파일이 있는지 확인용)
 }) {
   const { currentLanguage } = useLanguage();
-  const t = translations[currentLanguage];
+  const t = translations[currentLanguage] || translations.ko || {};
   const [editingPinId, setEditingPinId] = useState(null);
   const [editingName, setEditingName] = useState('');
   const [newPinName, setNewPinName] = useState('');

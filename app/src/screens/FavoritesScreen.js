@@ -25,7 +25,6 @@ import {
   updatePinName,
   createPin,
 } from '../services/database';
-import { deleteThumbnailCacheIfUnused } from '../services/downloadService';
 import { openLinkDownWithFlag } from '../config/api';
 import AdBanner from '../components/AdBanner';
 import PinManagerModal from '../components/PinManagerModal';
@@ -36,7 +35,7 @@ import { translations } from '../locales/translations';
 
 export default function FavoritesScreen({ navigation }) {
   const { currentLanguage } = useLanguage();
-  const t = translations[currentLanguage];
+  const t = translations[currentLanguage] || translations.ko || {};
   const [favorites, setFavorites] = useState([]);
   const [filteredFavorites, setFilteredFavorites] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -186,9 +185,6 @@ export default function FavoritesScreen({ navigation }) {
       await removeFavorite(item.video_id);
       setFavorites(prev => prev.filter(fav => fav.video_id !== item.video_id));
       console.log('[FavoritesScreen] Favorite removed:', item.video_id);
-      
-      // 썸네일 캐시 스마트 삭제 (다운로드 파일이 없을 때만 삭제)
-      await deleteThumbnailCacheIfUnused(item.video_id);
       
       // 핀 목록 새로고침
       loadPins();

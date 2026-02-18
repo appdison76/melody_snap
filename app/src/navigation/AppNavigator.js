@@ -6,6 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 import FavoritesScreen from '../screens/FavoritesScreen';
 import VideoSearchScreen from '../screens/VideoSearchScreen';
 import MusicRecognitionScreen from '../screens/MusicRecognitionScreen';
+import SettingsScreen from '../screens/SettingsScreen';
 import { useLanguage } from '../contexts/LanguageContext';
 import { translations } from '../locales/translations';
 
@@ -14,7 +15,7 @@ const Stack = createNativeStackNavigator();
 
 function MainTabs() {
   const { currentLanguage } = useLanguage();
-  const t = translations[currentLanguage];
+  const t = translations[currentLanguage] || translations.ko || {};
   
   const getTabTitle = (routeName) => {
     switch (routeName) {
@@ -24,6 +25,8 @@ function MainTabs() {
         return t.tabFavorites;
       case 'MusicRecognition':
         return t.tabMusicRecognition;
+      case 'Settings':
+        return t.tabSettings;
       default:
         return '';
     }
@@ -41,6 +44,8 @@ function MainTabs() {
             iconName = focused ? 'star' : 'star-outline';
           } else if (route.name === 'MusicRecognition') {
             iconName = focused ? 'musical-notes' : 'musical-notes-outline';
+          } else if (route.name === 'Settings') {
+            iconName = focused ? 'settings' : 'settings-outline';
           }
 
           return <Ionicons name={iconName} size={size} color={color} />;
@@ -62,6 +67,10 @@ function MainTabs() {
       <Tab.Screen 
         name="Favorites" 
         component={FavoritesScreen}
+      />
+      <Tab.Screen 
+        name="Settings" 
+        component={SettingsScreen}
       />
     </Tab.Navigator>
   );

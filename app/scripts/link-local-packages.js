@@ -14,6 +14,7 @@ const localPackages = [
   'expo-media-session-module',
   'expo-media-store-module',
   'expo-shazam-module',
+  'expo-share-url-module',
 ];
 
 localPackages.forEach((name) => {

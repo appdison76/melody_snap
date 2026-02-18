@@ -25,7 +25,7 @@ export default function PinSelectorModal({
   labelType = 'bookmark',
 }) {
   const { currentLanguage } = useLanguage();
-  const t = translations[currentLanguage];
+  const t = translations[currentLanguage] || translations.ko || {};
   const [showCreateInput, setShowCreateInput] = useState(false);
   const [newPinName, setNewPinName] = useState('');
 

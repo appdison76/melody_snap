@@ -200,20 +200,29 @@ export default function App() {
       }
     });
 
-    // Native Module을 통해 MainActivity에서 직접 전달받은 URL 처리
+    // Native Module을 통해 MainActivity에서 직접 전달받은 URL 처리 (공유하기 → 우리 앱)
     let shareSubscription = null;
     if (Platform.OS === 'android' && NativeModules.ShareUrlModule) {
       const eventEmitter = new NativeEventEmitter(NativeModules.ShareUrlModule);
       shareSubscription = eventEmitter.addListener('onSharedUrl', (event) => {
         if (event && event.url) {
           console.log('[App] Received URL from ShareUrlModule:', event.url);
-          // 이전 URL을 초기화한 후 새 URL 설정 (강제 업데이트)
           setInitialUrl(null);
           setTimeout(() => {
             setInitialUrl(`${event.url}?t=${Date.now()}`);
           }, 100);
         }
       });
+      // 콜드 스타트 시 이벤트가 먼저 발생했을 수 있으므로 초기 공유 URL 한 번 확인
+      NativeModules.ShareUrlModule.getInitialShareUrl?.().then((url) => {
+        if (url && isValidYouTubeUrl(url)) {
+          console.log('[App] Initial share URL from getInitialShareUrl:', url);
+          setInitialUrl(null);
+          setTimeout(() => {
+            setInitialUrl(`${url}?t=${Date.now()}`);
+          }, 100);
+        }
+      }).catch(() => {});
     }
 
     // AppState 변경 감지 (앱이 포그라운드로 올 때)
