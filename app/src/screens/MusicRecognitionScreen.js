@@ -1103,6 +1103,13 @@ export default function MusicRecognitionScreen({ navigation }) {
         <View style={styles.headerTitleContainer}>
           <Text style={styles.headerTitle}>{t.appTitle}</Text>
         </View>
+        <TouchableOpacity
+          style={styles.headerSettingsButton}
+          onPress={() => navigation.navigate('Settings')}
+          activeOpacity={0.7}
+        >
+          <Ionicons name="settings-outline" size={24} color="#fff" />
+        </TouchableOpacity>
         <LanguageSelector />
         </View>
       </SafeAreaView>
@@ -1404,6 +1411,12 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: '700',
     color: '#fff',
+  },
+  headerSettingsButton: {
+    marginRight: 8,
+    padding: 4,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   content: {
     flex: 1,

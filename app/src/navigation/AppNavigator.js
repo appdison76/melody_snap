@@ -25,8 +25,6 @@ function MainTabs() {
         return t.tabFavorites;
       case 'MusicRecognition':
         return t.tabMusicRecognition;
-      case 'Settings':
-        return t.tabSettings;
       default:
         return '';
     }
@@ -44,8 +42,6 @@ function MainTabs() {
             iconName = focused ? 'star' : 'star-outline';
           } else if (route.name === 'MusicRecognition') {
             iconName = focused ? 'musical-notes' : 'musical-notes-outline';
-          } else if (route.name === 'Settings') {
-            iconName = focused ? 'settings' : 'settings-outline';
           }
 
           return <Ionicons name={iconName} size={size} color={color} />;
@@ -67,10 +63,6 @@ function MainTabs() {
       <Tab.Screen 
         name="Favorites" 
         component={FavoritesScreen}
-      />
-      <Tab.Screen 
-        name="Settings" 
-        component={SettingsScreen}
       />
     </Tab.Navigator>
   );
@@ -189,6 +181,10 @@ export default function AppNavigator({ initialUrl }) {
         <Stack.Screen 
           name="Main" 
           component={MainTabs}
+        />
+        <Stack.Screen 
+          name="Settings" 
+          component={SettingsScreen}
         />
       </Stack.Navigator>
     </NavigationContainer>
