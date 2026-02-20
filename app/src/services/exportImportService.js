@@ -56,7 +56,7 @@ export const exportData = async () => {
   }
   await Sharing.shareAsync(path, {
     mimeType: 'application/json',
-    dialogTitle: 'Melody Snap 백업 저장',
+    dialogTitle: '찜하기 백업 저장',
   });
   return { success: true, path, shared: true };
 };
