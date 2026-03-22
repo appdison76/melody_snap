@@ -318,6 +318,54 @@ export default function FavoritesScreen({ navigation }) {
     }
   };
 
+  // 검색 화면과 동일: 유튜브 앱(또는 웹)으로 재생
+  const openVideo = useCallback(async (item) => {
+    if (!item.url) {
+      Alert.alert(t.error, t.videoUrlNotFound);
+      return;
+    }
+
+    try {
+      const videoUrl = item.url;
+      console.log('[FavoritesScreen] Opening video for play:', videoUrl);
+
+      if (Platform.OS === 'android') {
+        const videoId = videoUrl.match(/[?&]v=([^&]+)/)?.[1];
+        if (videoId) {
+          const videoAppUrl = `vnd.youtube:${videoId}`;
+          try {
+            const canOpen = await Linking.canOpenURL(videoAppUrl);
+            if (canOpen) {
+              await Linking.openURL(videoAppUrl);
+              return;
+            }
+          } catch (e) {
+            console.log('[FavoritesScreen] Video app not available, using web');
+          }
+        }
+      } else if (Platform.OS === 'ios') {
+        const videoId = videoUrl.match(/[?&]v=([^&]+)/)?.[1];
+        if (videoId) {
+          const videoAppUrl = `youtube://watch?v=${videoId}`;
+          try {
+            const canOpen = await Linking.canOpenURL(videoAppUrl);
+            if (canOpen) {
+              await Linking.openURL(videoAppUrl);
+              return;
+            }
+          } catch (e) {
+            console.log('[FavoritesScreen] Video app not available, using web');
+          }
+        }
+      }
+
+      await Linking.openURL(videoUrl);
+    } catch (error) {
+      console.error('[FavoritesScreen] Error opening video:', error);
+      Alert.alert(t.error, t.cannotOpenVideo);
+    }
+  }, [t]);
+
   // 데이터 배열에 광고 삽입 (5개마다)
   const getDataWithAds = () => {
     const dataToUse = filteredFavorites;
@@ -390,6 +438,16 @@ export default function FavoritesScreen({ navigation }) {
           </View>
           <View style={styles.favoriteActions}>
           <TouchableOpacity
+            style={styles.playButton}
+            onPress={(e) => {
+              e.stopPropagation();
+              openVideo(item);
+            }}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          >
+            <Ionicons name="play-circle" size={22} color="#FF0000" />
+          </TouchableOpacity>
+          <TouchableOpacity
             style={styles.pinButton}
             onPress={(e) => {
               e.stopPropagation();
@@ -400,7 +458,7 @@ export default function FavoritesScreen({ navigation }) {
           >
             <Ionicons 
               name={(item.pin_ids && item.pin_ids.length > 0) ? "bookmark" : "bookmark-outline"} 
-              size={20} 
+              size={18} 
               color={(item.pin_ids && item.pin_ids.length > 0) ? "#ff6b6b" : "#999"} 
             />
           </TouchableOpacity>
@@ -411,7 +469,7 @@ export default function FavoritesScreen({ navigation }) {
               handleRemoveFavorite(item);
             }}
           >
-            <Ionicons name="close-circle" size={24} color="#999" />
+            <Ionicons name="close-circle" size={22} color="#999" />
           </TouchableOpacity>
         </View>
         </TouchableOpacity>
@@ -845,13 +903,15 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   favoriteThumbnail: {
-    width: 120,
-    height: 90,
+    width: 100,
+    height: 75,
     backgroundColor: '#ddd',
   },
   favoriteContent: {
     flex: 1,
-    padding: 12,
+    minWidth: 0,
+    paddingVertical: 10,
+    paddingHorizontal: 8,
     justifyContent: 'center',
   },
   favoriteTitleRow: {
@@ -864,6 +924,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#333',
     flex: 1,
+    flexShrink: 1,
   },
   pinBadgesContainer: {
     flexDirection: 'row',
@@ -894,14 +955,25 @@ const styles = StyleSheet.create({
   favoriteActions: {
     flexDirection: 'row',
     alignItems: 'center',
+    paddingRight: 4,
+    paddingLeft: 2,
+    gap: 0,
+  },
+  playButton: {
+    paddingVertical: 6,
+    paddingHorizontal: 4,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   pinButton: {
-    padding: 8,
+    paddingVertical: 6,
+    paddingHorizontal: 4,
     justifyContent: 'center',
     alignItems: 'center',
   },
   removeButton: {
-    padding: 12,
+    paddingVertical: 6,
+    paddingHorizontal: 4,
     justifyContent: 'center',
     alignItems: 'center',
   },
