@@ -1,9 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { Platform, Linking, NativeEventEmitter, NativeModules, AppState, Alert, PermissionsAndroid } from 'react-native';
+import { Platform, Linking, NativeEventEmitter, AppState, Alert, PermissionsAndroid } from 'react-native';
+import { requireOptionalNativeModule } from 'expo-modules-core';
 import AppNavigator from './src/navigation/AppNavigator';
 import { initDatabase } from './src/services/database';
 import { LanguageProvider } from './src/contexts/LanguageContext';
 import Constants from 'expo-constants';
+import {
+  appendTimestampQuery,
+  extractYoutubeUrlFromShare,
+  normalizeYouTubeShareUrl,
+} from './src/utils/youtubeShare';
 
 // YouTube URL인지 확인하는 함수
 const isValidYouTubeUrl = (url) => {
@@ -192,7 +198,7 @@ export default function App() {
           // 이전 URL을 초기화한 후 새 URL 설정 (강제 업데이트)
           setInitialUrl(null);
           setTimeout(() => {
-            setInitialUrl(`${url}?t=${Date.now()}`);
+            setInitialUrl(appendTimestampQuery(url));
           }, 100);
         } else {
           console.log('[App] Ignoring non-YouTube URL from event listener:', url);
@@ -200,29 +206,36 @@ export default function App() {
       }
     });
 
-    // Native Module을 통해 MainActivity에서 직접 전달받은 URL 처리 (공유하기 → 우리 앱)
+    // 공유하기: Expo 네이티브 모듈은 NativeModules에 없을 수 있음 → requireOptionalNativeModule (youtube_down과 동일)
+    const applyShareUrl = (url) => {
+      const raw = url != null ? String(url).trim() : '';
+      console.log('[App] applyShareUrl raw', raw ? `${raw.slice(0, 100)}…` : raw);
+      const extracted = extractYoutubeUrlFromShare(raw);
+      if (!extracted || !isValidYouTubeUrl(extracted)) {
+        console.warn('[App] applyShareUrl: skip (no valid YouTube URL)', extracted?.slice?.(0, 80));
+        return;
+      }
+      const normalized = normalizeYouTubeShareUrl(extracted);
+      setInitialUrl(null);
+      setTimeout(() => setInitialUrl(appendTimestampQuery(normalized)), 100);
+    };
     let shareSubscription = null;
-    if (Platform.OS === 'android' && NativeModules.ShareUrlModule) {
-      const eventEmitter = new NativeEventEmitter(NativeModules.ShareUrlModule);
+    const ShareUrlModule = Platform.OS === 'android' ? requireOptionalNativeModule('ShareUrlModule') : null;
+    if (ShareUrlModule) {
+      console.log('[App] ShareUrlModule available (expo-modules)');
+      const eventEmitter = new NativeEventEmitter(ShareUrlModule);
       shareSubscription = eventEmitter.addListener('onSharedUrl', (event) => {
-        if (event && event.url) {
-          console.log('[App] Received URL from ShareUrlModule:', event.url);
-          setInitialUrl(null);
-          setTimeout(() => {
-            setInitialUrl(`${event.url}?t=${Date.now()}`);
-          }, 100);
-        }
+        if (event?.url) applyShareUrl(event.url);
       });
-      // 콜드 스타트 시 이벤트가 먼저 발생했을 수 있으므로 초기 공유 URL 한 번 확인
-      NativeModules.ShareUrlModule.getInitialShareUrl?.().then((url) => {
-        if (url && isValidYouTubeUrl(url)) {
-          console.log('[App] Initial share URL from getInitialShareUrl:', url);
-          setInitialUrl(null);
-          setTimeout(() => {
-            setInitialUrl(`${url}?t=${Date.now()}`);
-          }, 100);
-        }
-      }).catch(() => {});
+      const initialPromise = ShareUrlModule.getInitialShareUrl?.();
+      Promise.resolve(initialPromise != null ? initialPromise : null)
+        .then((url) => {
+          console.log('[App] getInitialShareUrl', url ? `${String(url).slice(0, 72)}…` : url);
+          applyShareUrl(url);
+        })
+        .catch((err) => console.warn('[App] getInitialShareUrl error', err));
+    } else {
+      console.log('[App] ShareUrlModule not available (android=', Platform.OS === 'android', ')');
     }
 
     // AppState 변경 감지 (앱이 포그라운드로 올 때)
@@ -241,7 +254,7 @@ export default function App() {
                 lastProcessedUrl = url;
                 setInitialUrl(null);
                 setTimeout(() => {
-                  setInitialUrl(`${url}?t=${Date.now()}`);
+                  setInitialUrl(appendTimestampQuery(url));
                 }, 100);
               } else if (url === lastProcessedUrl) {
                 console.log('[App] Same URL as before, ignoring (likely returning from external app)');
@@ -252,6 +265,18 @@ export default function App() {
             .catch((error) => {
               console.error('[App] Error checking URL on app state change:', error);
             });
+          const ShareUrlMod = Platform.OS === 'android' ? requireOptionalNativeModule('ShareUrlModule') : null;
+          if (ShareUrlMod?.getInitialShareUrl) {
+            const p = ShareUrlMod.getInitialShareUrl();
+            Promise.resolve(p != null ? p : null)
+              .then((url) => {
+                if (url && url !== lastProcessedUrl && isValidYouTubeUrl(url)) {
+                  lastProcessedUrl = url;
+                  applyShareUrl(url);
+                }
+              })
+              .catch(() => {});
+          }
         }, 300);
       }
     });

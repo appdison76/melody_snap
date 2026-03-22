@@ -24,6 +24,7 @@ class ShareUrlModule : Module() {
     }
 
     Function("getInitialShareUrl") {
+      ShareUrlHolder.takePendingUrl()?.let { return@Function it }
       val activity = appContext.currentActivity ?: return@Function null
       val intent = activity.intent ?: return@Function null
       if (Intent.ACTION_SEND != intent.action) return@Function null

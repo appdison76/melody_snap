@@ -1,14 +1,16 @@
 import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, CommonActions } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import FavoritesScreen from '../screens/FavoritesScreen';
 import VideoSearchScreen from '../screens/VideoSearchScreen';
+import ImportScreen from '../screens/ImportScreen';
 import MusicRecognitionScreen from '../screens/MusicRecognitionScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import { useLanguage } from '../contexts/LanguageContext';
 import { translations } from '../locales/translations';
+import { extractYoutubeUrlFromShare, normalizeYoutubeNavigationUrl } from '../utils/youtubeShare';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -21,6 +23,8 @@ function MainTabs() {
     switch (routeName) {
       case 'VideoSearch':
         return t.tabSearch;
+      case 'Import':
+        return t.tabImport;
       case 'Favorites':
         return t.tabFavorites;
       case 'MusicRecognition':
@@ -38,6 +42,8 @@ function MainTabs() {
 
           if (route.name === 'VideoSearch') {
             iconName = focused ? 'search' : 'search-outline';
+          } else if (route.name === 'Import') {
+            iconName = focused ? 'link' : 'link-outline';
           } else if (route.name === 'Favorites') {
             iconName = focused ? 'star' : 'star-outline';
           } else if (route.name === 'MusicRecognition') {
@@ -59,6 +65,10 @@ function MainTabs() {
       <Tab.Screen 
         name="VideoSearch" 
         component={VideoSearchScreen}
+      />
+      <Tab.Screen 
+        name="Import" 
+        component={ImportScreen}
       />
       <Tab.Screen 
         name="Favorites" 
@@ -108,57 +118,26 @@ export default function AppNavigator({ initialUrl }) {
         }
 
         if (urlToNavigate) {
-          console.log('[AppNavigator] Navigating to VideoSearch with URL:', urlToNavigate);
-          // URL 정리 (공백 제거)
-          urlToNavigate = urlToNavigate.trim();
-          
-          // exp+app:// 스킴에서 실제 URL 추출
-          if (urlToNavigate.startsWith('exp+app://') || urlToNavigate.startsWith('exp://')) {
-            try {
-              const urlObj = new URL(urlToNavigate);
-              const urlParam = urlObj.searchParams.get('url');
-              if (urlParam) {
-                urlToNavigate = decodeURIComponent(urlParam);
-                console.log('[AppNavigator] Extracted URL from exp+app://:', urlToNavigate);
-              }
-            } catch (e) {
-              console.warn('[AppNavigator] Failed to parse exp+app:// URL:', e);
-              // exp+app://?url= 형식에서 직접 추출 시도
-              const urlMatch = urlToNavigate.match(/[?&]url=([^&]+)/);
-              if (urlMatch) {
-                urlToNavigate = decodeURIComponent(urlMatch[1]);
-                console.log('[AppNavigator] Extracted URL using regex:', urlToNavigate);
-              }
-            }
+          console.log('[AppNavigator] Navigating to Import with URL:', urlToNavigate);
+          urlToNavigate = (extractYoutubeUrlFromShare(urlToNavigate.trim()) || urlToNavigate.trim());
+          urlToNavigate = normalizeYoutubeNavigationUrl(urlToNavigate);
+          console.log('[AppNavigator] Normalized Import URL:', urlToNavigate);
+
+          if (!urlToNavigate) {
+            console.log('[AppNavigator] No URL after normalize/extract');
+          } else {
+            const newTimestamp = Date.now();
+            const newParams = { url: urlToNavigate, timestamp: newTimestamp, forceUpdate: true };
+            navigationRef.current?.dispatch(
+              CommonActions.navigate({
+                name: 'Main',
+                params: {
+                  screen: 'Import',
+                  params: newParams,
+                },
+              })
+            );
           }
-          
-          // 잘린 URL 복구 시도
-          if (urlToNavigate.startsWith(':om/') || urlToNavigate.startsWith('om/') || urlToNavigate.startsWith('be.com/')) {
-            if (urlToNavigate.startsWith('be.com/')) {
-              urlToNavigate = `https://www.youtu${urlToNavigate}`;
-            } else {
-              urlToNavigate = `https://www.youtub${urlToNavigate}`;
-            }
-            console.log('[AppNavigator] 잘린 URL 복구:', urlToNavigate);
-          }
-          
-          // 불필요한 파라미터 제거 (v= 파라미터는 유지)
-          const urlMatch = urlToNavigate.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\s?]+)/);
-          if (urlMatch) {
-            const videoId = urlMatch[1].split('?')[0].split('&')[0]; // ?si= 같은 파라미터 제거
-            urlToNavigate = `https://www.youtube.com/watch?v=${videoId}`;
-            console.log('[AppNavigator] 정규화된 URL:', urlToNavigate);
-          }
-          
-          // 강제로 네비게이션 (항상 새로운 파라미터로 업데이트)
-          const newTimestamp = Date.now();
-          const newParams = { url: urlToNavigate, timestamp: newTimestamp, forceUpdate: true };
-          
-          // 한 번만 navigate (깜빡임 방지)
-          navigationRef.current?.navigate('Main', {
-            screen: 'VideoSearch',
-            params: newParams,
-          });
         } else {
           console.log('[AppNavigator] No valid URL found in:', initialUrl);
         }

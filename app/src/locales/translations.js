@@ -146,6 +146,14 @@ export const translations = {
     
     // 네비게이션 탭
     tabSearch: '검색',
+    tabImport: '가져오기',
+    importPageSectionTitle: '링크로 가져오기',
+    importSectionTitle: '가져온 영상',
+    importFavoritedShort: '찜함',
+    importClearUrlA11y: '입력 지우기',
+    importTapToPasteHint: '탭하여 클립보드에서 붙여넣기\n(유튜브 링크면 자동으로 가져옵니다)',
+    importClipboardEmpty: '클립보드에 텍스트가 없습니다.',
+    importClipboardError: '클립보드를 읽을 수 없습니다.',
     tabSave: '저장',
     tabMyFiles: '내 파일',
     tabFavorites: '찜하기',
@@ -350,6 +358,14 @@ export const translations = {
     
     // Navigation tabs
     tabSearch: 'Search',
+    tabImport: 'Import',
+    importPageSectionTitle: 'Import by link',
+    importSectionTitle: 'Imported video',
+    importFavoritedShort: 'Saved',
+    importClearUrlA11y: 'Clear input',
+    importTapToPasteHint: 'Tap to paste from clipboard\n(YouTube links fetch automatically)',
+    importClipboardEmpty: 'Clipboard is empty.',
+    importClipboardError: 'Could not read the clipboard.',
     tabSave: 'Save',
     tabMyFiles: 'My Files',
     tabFavorites: 'Favorites',
@@ -554,6 +570,14 @@ export const translations = {
     
     // ナビゲーションタブ
     tabSearch: '検索',
+    tabImport: 'インポート',
+    importPageSectionTitle: 'リンクで取り込む',
+    importSectionTitle: '取り込んだ動画',
+    importFavoritedShort: '登録済み',
+    importClearUrlA11y: '入力を消す',
+    importTapToPasteHint: 'タップしてクリップボードから貼り付け\n（YouTubeのリンクなら自動で取り込み）',
+    importClipboardEmpty: 'クリップボードが空です。',
+    importClipboardError: 'クリップボードを読み取れませんでした。',
     tabSave: '保存',
     tabMyFiles: 'マイファイル',
     tabFavorites: 'お気に入り',
@@ -758,6 +782,14 @@ export const translations = {
     
     // 导航标签
     tabSearch: '搜索',
+    tabImport: '导入',
+    importPageSectionTitle: '通过链接导入',
+    importSectionTitle: '导入的视频',
+    importFavoritedShort: '已收藏',
+    importClearUrlA11y: '清除输入',
+    importTapToPasteHint: '点击从剪贴板粘贴\n（YouTube 链接将自动获取）',
+    importClipboardEmpty: '剪贴板为空。',
+    importClipboardError: '无法读取剪贴板。',
     tabSave: '保存',
     tabMyFiles: '我的文件',
     tabFavorites: '收藏',
