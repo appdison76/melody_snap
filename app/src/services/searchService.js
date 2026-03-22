@@ -30,17 +30,28 @@ export const searchVideos = async (searchQuery, maxResults = 20) => {
       throw new Error(errorData.message || errorData.error || '검색에 실패했습니다.');
     }
     const data = await response.json();
-    const results = (data.items || []).map((item) => ({
-      id: item.id.videoId,
-      title: decodeHtmlEntities(item.snippet.title),
-      url: `https://www.youtube.com/watch?v=${item.id.videoId}`,
-      thumbnail: item.snippet.thumbnails?.high?.url || item.snippet.thumbnails?.default?.url,
-      author: decodeHtmlEntities(item.snippet.channelTitle),
-      authorUrl: `https://www.youtube.com/channel/${item.snippet.channelId}`,
-      description: decodeHtmlEntities(item.snippet.description),
-      publishedAt: item.snippet.publishedAt,
-    }));
-    return results;
+    const items = data.items || [];
+
+    // Serper 폴백 시 channelId 없을 수 있음 (youtube_down downloadService와 동일)
+    const results = items.map((item) => {
+      const ch = item.snippet?.channelTitle || '';
+      const cid = item.snippet?.channelId;
+      const authorUrl = cid
+        ? `https://www.youtube.com/channel/${cid}`
+        : `https://www.youtube.com/results?search_query=${encodeURIComponent(ch)}`;
+      return {
+        id: item.id?.videoId,
+        title: decodeHtmlEntities(item.snippet?.title || ''),
+        url: `https://www.youtube.com/watch?v=${item.id?.videoId}`,
+        thumbnail:
+          item.snippet?.thumbnails?.high?.url || item.snippet?.thumbnails?.default?.url,
+        author: decodeHtmlEntities(ch),
+        authorUrl,
+        description: decodeHtmlEntities(item.snippet?.description || ''),
+        publishedAt: item.snippet?.publishedAt,
+      };
+    });
+    return results.filter((r) => r && r.id);
   } catch (error) {
     console.error('[searchService] Error searching videos:', error);
     throw error;
