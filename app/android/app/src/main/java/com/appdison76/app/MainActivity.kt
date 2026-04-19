@@ -3,6 +3,7 @@ package com.appdison76.app
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 
 import com.appdison76.shareurl.ShareUrlHolder
 import com.appdison76.shareurl.ShareUrlModule
@@ -32,11 +33,20 @@ class MainActivity : ReactActivity() {
   private fun handleShareIntent(intent: Intent?) {
     if (intent?.action != Intent.ACTION_SEND) return
     val text = intent.getStringExtra(Intent.EXTRA_TEXT)?.trim() ?: return
+    Log.d("ShareIntent", "EXTRA_TEXT raw: [$text]")
     if (text.isEmpty()) return
-    if (!text.startsWith("http") && !text.contains("youtube") && !text.contains("youtu.be")) return
-    val url = if (text.startsWith("http")) text else "https://$text"
+    val url = extractYoutubeUrlFromText(text) ?: return
+    Log.d("ShareIntent", "extractYoutubeUrlFromText result: [$url]")
     ShareUrlHolder.pendingUrl = url
     ShareUrlModule.notifySharedUrl(url)
+  }
+
+  /** 문장·공유 텍스트에서 첫 https URL만 추출 (youtube_down MainActivity와 동일) */
+  private fun extractYoutubeUrlFromText(text: String): String? {
+    val urlPattern = Regex("(https?://[a-zA-Z0-9\\-._~:/?#\\[\\]@!$&'()*+,;=]+)")
+    val match = urlPattern.find(text) ?: return null
+    val url = match.value
+    return url.takeIf { url.contains("youtube") || url.contains("youtu.be") }
   }
 
   /**

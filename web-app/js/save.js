@@ -7,6 +7,40 @@ const videoInfo = document.getElementById('video-info');
 let currentVideoUrl = null;
 let currentVideoId = null;
 
+/** 앱 youtubeShare / searchService와 동일: shorts·live·watch → watch?v= 표준화 */
+function parseYoutubeUrlForSave(raw) {
+    let u = (raw || '').trim();
+    if (!u) return null;
+    if (/^[a-zA-Z0-9_-]{10,}$/.test(u)) {
+        return {
+            videoId: u,
+            canonicalUrl: 'https://www.youtube.com/watch?v=' + u,
+        };
+    }
+    if (/^youtu\.be\//i.test(u) && !/^https?:\/\//i.test(u)) u = 'https://' + u;
+    else if (/^www\.(youtube\.com|youtu\.be)/i.test(u) && !/^https?:\/\//i.test(u)) u = 'https://' + u;
+    else if (/^youtube\.com/i.test(u) && !/^https?:\/\//i.test(u)) u = 'https://' + u;
+    if (u.startsWith(':om/') || u.startsWith('om/')) u = 'https://www.youtub' + u;
+    if (u.startsWith('be.com/')) u = 'https://www.youtu' + u;
+
+    let shorts = u.match(/youtube\.com\/shorts\/([^&\s/?]+)/i);
+    if (shorts) {
+        var sid = shorts[1].split('?')[0].split('&')[0];
+        return { videoId: sid, canonicalUrl: 'https://www.youtube.com/watch?v=' + sid };
+    }
+    var liveM = u.match(/youtube\.com\/live\/([^&\s?]+)/i);
+    if (liveM) {
+        var lid = liveM[1].split('?')[0].split('&')[0];
+        return { videoId: lid, canonicalUrl: 'https://www.youtube.com/watch?v=' + lid };
+    }
+    var watchM = u.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/);
+    if (watchM) {
+        var vid = watchM[1].split('?')[0].split('&')[0];
+        return { videoId: vid, canonicalUrl: 'https://www.youtube.com/watch?v=' + vid };
+    }
+    return null;
+}
+
 function updateUrlClearVisibility() {
     urlClearBtn.style.display = urlInput.value.trim() ? 'flex' : 'none';
 }
@@ -36,14 +70,14 @@ async function handleUrlSubmit() {
     const url = urlInput.value.trim();
     if (!url) return;
 
-    const videoIdMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/);
-    if (!videoIdMatch) {
+    const parsed = parseYoutubeUrlForSave(url);
+    if (!parsed) {
         alert('올바른 YouTube URL을 입력해주세요.');
         return;
     }
 
-    currentVideoId = videoIdMatch[1];
-    currentVideoUrl = `https://www.youtube.com/watch?v=${currentVideoId}`;
+    currentVideoId = parsed.videoId;
+    currentVideoUrl = parsed.canonicalUrl;
 
     videoInfo.style.display = 'none';
     videoInfo.innerHTML = '';
