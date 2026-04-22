@@ -26,7 +26,7 @@ import { addFavorite, removeFavorite, getFavorites, initDatabase } from '../serv
 import { openLinkDownWithFlag } from '../config/api';
 import { normalizeYoutubeUrlInput, fetchVideoInfoByUrl } from '../services/searchService';
 import { normalizeYoutubeNavigationUrl, stripNavigationTimestampBust } from '../utils/youtubeShare';
-import AdBanner from '../components/AdBanner';
+import InlineNativeAd from '../components/InlineNativeAd';
 
 /**
  * youtube_down 앱 SearchScreen(저장/URL 가져오기) 레이아웃과 동일.
@@ -439,23 +439,27 @@ export default function ImportScreen({ navigation, route }) {
   };
 
   const listEmpty = (
-    <View style={styles.centerContainer}>
-      <TouchableOpacity onPress={openVideoApp} activeOpacity={0.7}>
-        <Animated.View style={[styles.videoIconButton, { transform: [{ scale: pulseAnim }] }]}>
-          <Text style={styles.emptyIcon}>📺</Text>
-          <Text style={styles.iconHintText}>{t.getVideoHint}</Text>
-        </Animated.View>
-      </TouchableOpacity>
-      <View style={styles.emptyRow}>
-        <Text style={styles.emptyText}>{t.shareFromVideoApp}</Text>
-        <Ionicons name="arrow-redo-outline" size={18} color="#333" style={styles.emptyRowIcon} />
-      </View>
-      <TouchableOpacity onPress={handlePasteFromClipboard} activeOpacity={0.7}>
+    <View style={styles.emptyStateWrapper}>
+      <View style={styles.emptyStateHeader}>
+        <TouchableOpacity onPress={openVideoApp} activeOpacity={0.7}>
+          <Animated.View style={[styles.videoIconButton, { transform: [{ scale: pulseAnim }] }]}>
+            <Text style={styles.emptyIcon}>📺</Text>
+            <Text style={styles.iconHintText}>{t.getVideoHint}</Text>
+          </Animated.View>
+        </TouchableOpacity>
         <View style={styles.emptyRow}>
-          <Text style={styles.emptySubText}>{t.importTapToPasteHint || t.orCopyVideoUrl}</Text>
-          <Ionicons name="copy-outline" size={16} color="#666" style={styles.emptyRowIconSm} />
+          <Text style={styles.emptyText}>{t.shareFromVideoApp}</Text>
+          <Ionicons name="arrow-redo-outline" size={18} color="#333" style={styles.emptyRowIcon} />
         </View>
-      </TouchableOpacity>
+        <TouchableOpacity onPress={handlePasteFromClipboard} activeOpacity={0.7}>
+          <View style={styles.emptyRow}>
+            <Text style={styles.emptySubText}>{t.importTapToPasteHint || t.orCopyVideoUrl}</Text>
+            <Ionicons name="copy-outline" size={16} color="#666" style={styles.emptyRowIconSm} />
+          </View>
+        </TouchableOpacity>
+      </View>
+      <View style={styles.emptyStateSpacer} />
+      <InlineNativeAd flushHorizontal />
     </View>
   );
 
@@ -541,7 +545,7 @@ export default function ImportScreen({ navigation, route }) {
             keyExtractor={(item, index) => `import-${item.id || index}`}
             removeClippedSubviews={false}
             ListEmptyComponent={listEmpty}
-            ListFooterComponent={results.length > 0 ? <AdBanner style={{ marginTop: 20 }} /> : null}
+            ListFooterComponent={results.length > 0 ? <InlineNativeAd style={{ marginTop: 20 }} /> : null}
             contentContainerStyle={results.length === 0 ? styles.listContentEmpty : styles.listContent}
           />
         )}
@@ -652,6 +656,21 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 40,
     paddingVertical: 40,
+  },
+  /** 결과 없을 때: 안내는 위쪽, 네이티브 광고는 아래쪽 (검색 빈 화면과 동일 패턴) */
+  emptyStateWrapper: {
+    flex: 1,
+    width: '100%',
+    minHeight: 360,
+  },
+  emptyStateHeader: {
+    alignItems: 'center',
+    paddingTop: 28,
+    paddingHorizontal: 40,
+  },
+  emptyStateSpacer: {
+    flex: 1,
+    minHeight: 12,
   },
   loadingText: {
     marginTop: 16,

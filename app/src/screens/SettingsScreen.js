@@ -11,12 +11,12 @@ StatusBar,
     Alert,
   ActivityIndicator,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useLanguage } from '../contexts/LanguageContext';
 import LanguageSelector from '../components/LanguageSelector';
 import { translations } from '../locales/translations';
-import AdBanner from '../components/AdBanner';
+import InlineNativeAd from '../components/InlineNativeAd';
 import { exportData, pickAndImport } from '../services/exportImportService';
 
 // 설정 화면 전용 언어별 fallback (translations 로드 문제 시 사용)
@@ -41,6 +41,7 @@ function getT(currentLanguage) {
 }
 
 export default function SettingsScreen({ navigation }) {
+  const insets = useSafeAreaInsets();
   const { currentLanguage } = useLanguage();
   const t = getT(currentLanguage);
   const [isPrivacyModalVisible, setIsPrivacyModalVisible] = useState(false);
@@ -143,7 +144,14 @@ export default function SettingsScreen({ navigation }) {
           <Ionicons name="chevron-forward" size={20} color="#999" />
         </TouchableOpacity>
       </ScrollView>
-      <AdBanner />
+      <View
+        style={[
+          styles.bottomNativeAdWrap,
+          { paddingBottom: Math.max(insets.bottom, 16) },
+        ]}
+      >
+        <InlineNativeAd flushHorizontal style={{ marginTop: 8 }} />
+      </View>
 
       {/* 개인정보처리방침 Modal */}
       <Modal
@@ -244,6 +252,10 @@ const styles = StyleSheet.create({
     marginLeft: 12,
     fontSize: 16,
     color: '#333',
+  },
+  bottomNativeAdWrap: {
+    backgroundColor: '#fff',
+    alignSelf: 'stretch',
   },
   // 개인정보처리방침 모달
   modalOverlay: {

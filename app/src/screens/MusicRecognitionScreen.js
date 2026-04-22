@@ -22,6 +22,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { Audio } from 'expo-av';
 import AdBanner from '../components/AdBanner';
+import InlineNativeAd from '../components/InlineNativeAd';
 import LanguageSelector from '../components/LanguageSelector';
 import { useLanguage } from '../contexts/LanguageContext';
 import { translations } from '../locales/translations';
@@ -1243,8 +1244,8 @@ export default function MusicRecognitionScreen({ navigation }) {
                 ) : null}
               </View>
             </View>
-            {/* 인식된 곡 아래 쿠팡 광고 */}
-            <AdBanner style={{ marginTop: 16 }} />
+            {/* 인식된 곡 아래 네이티브 광고 */}
+            <InlineNativeAd flushHorizontal style={{ marginTop: -6 }} />
           </View>
         )}
 
@@ -1326,7 +1327,7 @@ export default function MusicRecognitionScreen({ navigation }) {
                     </View>
                   </View>
                 </TouchableOpacity>
-                {/* 3개마다 쿠팡 광고 삽입 */}
+                {/* 3개마다 배너 광고 삽입 */}
                 {(index + 1) % 3 === 0 && (
                   <AdBanner style={{ marginTop: 16, marginBottom: 16 }} />
                 )}
@@ -1367,6 +1368,9 @@ export default function MusicRecognitionScreen({ navigation }) {
             </TouchableOpacity>
           </View>
         )}
+
+        {/* 스크롤 하단 네이티브 광고 */}
+        <InlineNativeAd flushHorizontal style={{ marginTop: -10 }} />
       </ScrollView>
     </View>
   );
@@ -1427,7 +1431,7 @@ const styles = StyleSheet.create({
   recognitionArea: {
     alignItems: 'center',
     marginTop: 20,
-    marginBottom: 40,
+    marginBottom: 22,
   },
   recognitionGradient: {
     width: '100%',
@@ -1436,7 +1440,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: 10,
   },
   pulseCircle: {
     position: 'absolute',
@@ -1497,7 +1501,7 @@ const styles = StyleSheet.create({
     textDecorationLine: 'underline',
   },
   resultArea: {
-    marginTop: 20,
+    marginTop: 6,
     marginBottom: 20,
   },
   resultTitle: {

@@ -21,6 +21,7 @@ import { searchVideos, getAutocomplete } from '../services/searchService';
 import { addFavorite, removeFavorite, isFavorite, initDatabase } from '../services/database';
 import { openLinkDownWithFlag } from '../config/api';
 import AdBanner from '../components/AdBanner';
+import InlineNativeAd from '../components/InlineNativeAd';
 import LanguageSelector from '../components/LanguageSelector';
 import { useLanguage } from '../contexts/LanguageContext';
 import { translations } from '../locales/translations';
@@ -664,14 +665,18 @@ export default function VideoSearchScreen({ navigation, route }) {
           renderItem={renderSearchItem}
           keyExtractor={(item, index) => item.type === 'ad' ? item.id : (item.id || `search-${index}`)}
           ListEmptyComponent={
-            <View style={styles.centerContainer}>
-              <Ionicons name="search-outline" size={64} color="#ddd" />
-              <Text style={styles.emptyText}>
-                {searchQuery ? t.noSearchResults : t.videoSearch}
-              </Text>
-              <Text style={styles.emptySubText}>
-                {searchQuery ? t.tryDifferentQuery : t.searchHintDescription}
-              </Text>
+            <View style={styles.emptyStateWrapper}>
+              <View style={styles.emptyStateHeader}>
+                <Ionicons name="search-outline" size={64} color="#ddd" />
+                <Text style={styles.emptyText}>
+                  {searchQuery ? t.noSearchResults : t.videoSearch}
+                </Text>
+                <Text style={styles.emptySubText}>
+                  {searchQuery ? t.tryDifferentQuery : t.searchHintDescription}
+                </Text>
+              </View>
+              <View style={styles.emptyStateSpacer} />
+              <InlineNativeAd flushHorizontal />
             </View>
           }
           contentContainerStyle={results.length === 0 ? styles.listContentEmpty : styles.listContent}
@@ -813,6 +818,21 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 40,
+  },
+  /** 검색 결과 없을 때: 안내는 위쪽, 네이티브 광고는 아래쪽 */
+  emptyStateWrapper: {
+    flex: 1,
+    width: '100%',
+    minHeight: 320,
+  },
+  emptyStateHeader: {
+    alignItems: 'center',
+    paddingTop: 28,
+    paddingHorizontal: 40,
+  },
+  emptyStateSpacer: {
+    flex: 1,
+    minHeight: 12,
   },
   loadingText: {
     fontSize: 16,
