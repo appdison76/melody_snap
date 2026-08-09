@@ -10,6 +10,10 @@ import {
   extractYoutubeUrlFromShare,
   normalizeYouTubeShareUrl,
 } from './src/utils/youtubeShare';
+import {
+  prepareColdStartAppOpenAd,
+  showColdStartAppOpenAdIfReady,
+} from './src/services/appOpenAdService';
 
 // YouTube URL인지 확인하는 함수
 const isValidYouTubeUrl = (url) => {
@@ -46,14 +50,20 @@ export default function App() {
     });
   }, []);
 
+  // 앱 오프닝 광고 미리 로드 (cold start용, 백그라운드 복귀 X)
+  useEffect(() => {
+    prepareColdStartAppOpenAd();
+  }, []);
+
   // 마이크 권한 요청 (앱 시작 시) - 제거: 음악 인식 화면에서 요청하도록 변경
   // useEffect(() => {
   //   ... 권한 요청 코드 제거
   // }, []);
 
-  // ✅ 강제 업데이트 체크
+  // ✅ 강제 업데이트 체크 (완료 후 cold start 앱 오프닝 1회)
   useEffect(() => {
     const checkVersion = async () => {
+      let forceUpdate = false;
       try {
         const VERSION_URL = 'https://appdison76.github.io/melody_snap/install-page/version.json';
         const currentVersion = Constants.expoConfig?.version || '1.0.4';
@@ -104,6 +114,7 @@ export default function App() {
 
           // 현재 버전이 minVersion보다 낮으면 강제 업데이트
           if (compareVersions(currentVersion, versionInfo.minVersion) < 0) {
+            forceUpdate = true;
             console.log('[App] ⚠️ Update required! Current:', currentVersion, 'Min:', versionInfo.minVersion);
             
             Alert.alert(
@@ -141,6 +152,10 @@ export default function App() {
       } catch (error) {
         console.error('[App] Error checking version:', error?.message || error, error?.cause);
         // 버전 체크 실패는 앱 실행을 막지 않음
+      } finally {
+        if (!forceUpdate) {
+          setTimeout(() => showColdStartAppOpenAdIfReady(), 400);
+        }
       }
     };
 
